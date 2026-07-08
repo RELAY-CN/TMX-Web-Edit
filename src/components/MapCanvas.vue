@@ -5,28 +5,31 @@
  *  - 工具：笔刷/橡皮/矩形/油漆桶/取色/对象编辑，滚轮缩放，空格或中键平移
  *  - 对象叠加层：矩形、名称标签、选中高亮、拖拽移动/缩放
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { FLIP_D, FLIP_H, FLIP_V, isObjectGroup, isTileLayer, rawGid } from '@/tmx/types'
-import type { TmxObject, TmxObjectGroup, TmxTileset } from '@/tmx/types'
+import type { TmxObject, TmxTileset } from '@/tmx/types'
 import { tileSourceRect } from '@/tmx/images'
 import { gidColor } from '@/render/avgColor'
 import { objectColor } from '@/game/triggers'
+import Minimap from '@/components/Minimap.vue'
 
 const store = useEditorStore()
-const { rev, structRev, tool, showGrid, showObjects, selectedObjectId, highlightActiveLayer } = storeToRefs(store)
+const { rev, structRev, tool, showGrid, showObjects, selectedObjectId, highlightActiveLayer, showMinimap, unitPreset } =
+  storeToRefs(store)
 
 const wrapEl = ref<HTMLDivElement>()
 const canvasEl = ref<HTMLCanvasElement>()
 
 // 视图状态（世界坐标 = 像素坐标，1 格 = map.tilewidth 像素）
-const view = {
+const view = reactive({
   x: 0, // 世界坐标下画布左上角
   y: 0,
   zoom: 1,
-}
+})
 const zoomText = ref('100%')
+const canvasSize = reactive({ w: 0, h: 0 })
 
 let raf = 0
 let needRedraw = true
@@ -313,6 +316,22 @@ function drawToolPreview(ctx: CanvasRenderingContext2D, z: number, tw: number, t
   const hov = hoverTile.value
   if (!hov) return
   const m = store.map!
+  if (t === 'unit' && unitPreset.value) {
+    const sx = (hov.x * tw - view.x) * z
+    const sy = (hov.y * th - view.y) * z
+    ctx.globalAlpha = 0.55
+    if (unitPreset.value.gid) {
+      drawTile(ctx, m, unitPreset.value.gid, sx, sy, tw * z, th * z)
+    } else {
+      ctx.fillStyle = '#c0f060'
+      ctx.fillRect(sx, sy, tw * z, th * z)
+    }
+    ctx.globalAlpha = 1
+    ctx.strokeStyle = '#40c080'
+    ctx.lineWidth = 1.5
+    ctx.strokeRect(sx + 0.5, sy + 0.5, tw * z, th * z)
+    return
+  }
   if (rectPreview.value && t === 'rect') {
     const r = rectPreview.value
     const xa = Math.min(r.x0, r.x1)
@@ -376,6 +395,31 @@ function fitView() {
   view.y = (mapPxH - canvas.height / view.zoom) / 2
   zoomText.value = Math.round(view.zoom * 100) + '%'
   requestRedraw()
+}
+
+/** 把视口中心移到世界坐标 (wx, wy) */
+function centerOn(wx: number, wy: number) {
+  const canvas = canvasEl.value
+  if (!canvas) return
+  view.x = wx - canvas.width / view.zoom / 2
+  view.y = wy - canvas.height / view.zoom / 2
+  requestRedraw()
+}
+
+/** 跳转到格子并高亮 */
+function jumpToTile(tx: number, ty: number) {
+  const m = store.map
+  if (!m) return
+  centerOn(tx * m.tilewidth + m.tilewidth / 2, ty * m.tileheight + m.tileheight / 2)
+  if (view.zoom < 1) {
+    view.zoom = Math.min(2, Math.max(1, view.zoom * 2))
+    zoomText.value = Math.round(view.zoom * 100) + '%'
+    centerOn(tx * m.tilewidth + m.tilewidth / 2, ty * m.tileheight + m.tileheight / 2)
+  }
+}
+
+function onMinimapJump(wx: number, wy: number) {
+  centerOn(wx, wy)
 }
 
 function onWheel(e: WheelEvent) {
@@ -469,6 +513,12 @@ function onMouseDown(e: MouseEvent) {
     } else {
       store.selectedObjectId = -1
     }
+    requestRedraw()
+    return
+  }
+
+  if (tool.value === 'unit') {
+    if (e.button === 0) store.placeUnitAt(world.x, world.y)
     requestRedraw()
     return
   }
@@ -599,6 +649,36 @@ function onKeyDown(e: KeyboardEvent) {
     e.preventDefault()
     return
   }
+  if (e.ctrlKey && e.code === 'KeyC') {
+    e.preventDefault()
+    if (store.tool === 'object' && store.selectedObjectId >= 0) {
+      store.copySelectedObject()
+    } else if (store.stamp) {
+      store.clipboard = { kind: 'tiles', w: store.stamp.w, h: store.stamp.h, gids: [...store.stamp.gids] }
+      store.setStatus(`已复制 ${store.stamp.w}×${store.stamp.h} 图章到剪贴板`)
+    }
+    return
+  }
+  if (e.ctrlKey && e.code === 'KeyV') {
+    e.preventDefault()
+    const clip = store.clipboard
+    if (!clip) return
+    if (clip.kind === 'object') {
+      store.pasteObject()
+    } else if (clip.kind === 'tiles' && hoverTile.value && store.activeLayerIndex >= 0) {
+      store.pasteTiles(store.activeLayerIndex, hoverTile.value.x, hoverTile.value.y)
+    }
+    return
+  }
+  if (e.ctrlKey && e.code === 'KeyD') {
+    // 复制并粘贴选中对象
+    e.preventDefault()
+    if (store.selectedObjectId >= 0) {
+      store.copySelectedObject()
+      store.pasteObject()
+    }
+    return
+  }
   switch (e.code) {
     case 'KeyB': store.tool = 'brush'; break
     case 'KeyE': store.tool = 'erase'; break
@@ -606,8 +686,10 @@ function onKeyDown(e: KeyboardEvent) {
     case 'KeyF': store.tool = 'fill'; break
     case 'KeyI': store.tool = 'picker'; break
     case 'KeyO': store.tool = 'object'; break
+    case 'KeyU': store.tool = 'unit'; break
     case 'KeyG': store.showGrid = !store.showGrid; break
     case 'KeyH': store.showObjects = !store.showObjects; break
+    case 'KeyM': store.showMinimap = !store.showMinimap; break
     case 'Delete':
     case 'Backspace':
       if (store.tool === 'object' && store.selectedObjectId >= 0 && store.activeObjectGroupIndex >= 0) {
@@ -627,6 +709,8 @@ function resize() {
   const r = wrap.getBoundingClientRect()
   canvas.width = Math.max(50, Math.floor(r.width))
   canvas.height = Math.max(50, Math.floor(r.height))
+  canvasSize.w = canvas.width
+  canvasSize.h = canvas.height
   requestRedraw()
 }
 
@@ -663,10 +747,11 @@ const cursorStyle = computed(() => {
   if (tool.value === 'pan') return 'grab'
   if (tool.value === 'object') return 'default'
   if (tool.value === 'picker') return 'crosshair'
+  if (tool.value === 'unit') return 'copy'
   return 'crosshair'
 })
 
-defineExpose({ fitView })
+defineExpose({ fitView, centerOn, jumpToTile })
 </script>
 
 <template>
@@ -679,10 +764,22 @@ defineExpose({ fitView })
       @mousemove="onMouseMove"
       @contextmenu.prevent
     />
+    <Minimap
+      v-if="showMinimap"
+      :view-x="view.x"
+      :view-y="view.y"
+      :view-zoom="view.zoom"
+      :canvas-w="canvasSize.w"
+      :canvas-h="canvasSize.h"
+      @jump="onMinimapJump"
+    />
     <div class="canvas-hud">
       <span>{{ zoomText }}</span>
       <span v-if="hoverTile">格 {{ hoverTile.x }}, {{ hoverTile.y }}</span>
-      <button class="icon" title="适配视图 (双击也可)" @dblclick.stop @click="fitView()">⛶</button>
+      <span v-if="tool === 'unit' && unitPreset" class="unit-tip">
+        {{ unitPreset.unit || unitPreset.customUnit }} t:{{ unitPreset.team }}
+      </span>
+      <button class="icon" title="适配视图" @click="fitView()">⛶</button>
     </div>
   </div>
 </template>
@@ -712,5 +809,9 @@ canvas {
   font-size: 12px;
   color: var(--text-dim);
   user-select: none;
+  z-index: 6;
+}
+.unit-tip {
+  color: var(--ok);
 }
 </style>

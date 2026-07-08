@@ -13,13 +13,27 @@ import { resolveTsx } from '@/game/builtin'
 import { createNewMap, type NewMapOptions } from '@/game/mapFactory'
 import { bytesToBase64 } from '@/tmx/base64'
 
-export type ToolId = 'pan' | 'brush' | 'erase' | 'rect' | 'fill' | 'picker' | 'object'
+export type ToolId = 'pan' | 'brush' | 'erase' | 'rect' | 'fill' | 'picker' | 'object' | 'unit'
 
 /** 笔刷图章：从地块面板选取的一块 gid 矩阵 */
 export interface Stamp {
   w: number
   h: number
   gids: number[]
+}
+
+/** 剪贴板：地块区域或对象 */
+export type Clipboard =
+  | { kind: 'tiles'; w: number; h: number; gids: number[] }
+  | { kind: 'object'; data: Omit<TmxObject, 'id'> }
+
+/** 单位摆放预置（从单位面板选取） */
+export interface UnitPlacePreset {
+  unit: string
+  team: string
+  customUnit?: string
+  /** 若来自 units.tsx 地块，带上 gid 以便画布预览 */
+  gid?: number
 }
 
 interface TilePatch {
@@ -58,9 +72,17 @@ export const useEditorStore = defineStore('editor', {
     /** 选中的对象（对象组索引 + 对象 id） */
     selectedObjectId: -1,
 
+    /** 剪贴板 */
+    clipboard: null as Clipboard | null,
+    /** 单位摆放预置 */
+    unitPreset: null as UnitPlacePreset | null,
+    /** 默认摆放队伍 */
+    placeTeam: '0',
+
     /** 视图设置 */
     showGrid: true,
     showObjects: true,
+    showMinimap: true,
     highlightActiveLayer: false,
 
     history: [] as HistoryEntry[],
@@ -590,6 +612,136 @@ export const useEditorStore = defineStore('editor', {
       if (!obj) return
       Object.assign(obj, patch)
       this.bump()
+    },
+
+    /** 复制当前选中对象到剪贴板 */
+    copySelectedObject() {
+      const o = this.selectedObject
+      if (!o) {
+        this.setStatus('没有选中的对象可复制')
+        return
+      }
+      const data = serializableObject(o)
+      const { id: _id, ...rest } = data
+      this.clipboard = { kind: 'object', data: rest }
+      this.setStatus('已复制对象 ' + (o.name || o.type || '#' + o.id))
+    },
+
+    /** 粘贴对象（偏移一点避免完全重叠） */
+    pasteObject(offsetX = 20, offsetY = 20) {
+      const clip = this.clipboard
+      if (!clip || clip.kind !== 'object') {
+        this.setStatus('剪贴板没有对象')
+        return
+      }
+      let gi = this.activeObjectGroupIndex
+      if (gi < 0) {
+        // 自动找 Triggers 或第一个对象组
+        const m = this.map
+        if (!m) return
+        gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'triggers')
+        if (gi < 0) gi = m.layers.findIndex((l) => isObjectGroup(l))
+        if (gi < 0) {
+          this.setStatus('没有可用的对象组')
+          return
+        }
+        this.activeObjectGroupIndex = gi
+      }
+      const data = {
+        ...clip.data,
+        properties: { ...clip.data.properties },
+        extraAttrs: { ...clip.data.extraAttrs },
+        x: clip.data.x + offsetX,
+        y: clip.data.y + offsetY,
+      }
+      this.addObject(gi, data)
+      this.tool = 'object'
+      this.setStatus('已粘贴对象')
+    },
+
+    /** 复制当前图层矩形区域到剪贴板（作为图章） */
+    copyTileRect(layerIndex: number, x0: number, y0: number, x1: number, y1: number) {
+      const m = this.map
+      if (!m) return
+      const layer = m.layers[layerIndex]
+      if (!layer || !isTileLayer(layer)) return
+      const xa = Math.max(0, Math.min(x0, x1))
+      const ya = Math.max(0, Math.min(y0, y1))
+      const xb = Math.min(layer.width - 1, Math.max(x0, x1))
+      const yb = Math.min(layer.height - 1, Math.max(y0, y1))
+      const w = xb - xa + 1
+      const h = yb - ya + 1
+      const gids: number[] = []
+      for (let y = ya; y <= yb; y++) {
+        for (let x = xa; x <= xb; x++) {
+          gids.push(layer.data[y * layer.width + x])
+        }
+      }
+      this.clipboard = { kind: 'tiles', w, h, gids }
+      this.stamp = { w, h, gids }
+      this.setStatus(`已复制 ${w}×${h} 地块区域`)
+    },
+
+    /** 粘贴地块剪贴板到指定位置 */
+    pasteTiles(layerIndex: number, x: number, y: number) {
+      const clip = this.clipboard
+      if (!clip || clip.kind !== 'tiles') {
+        this.setStatus('剪贴板没有地块区域')
+        return
+      }
+      this.applyStamp(layerIndex, x, y, { w: clip.w, h: clip.h, gids: clip.gids })
+      this.commitStroke('粘贴地块')
+      this.setStatus(`已粘贴 ${clip.w}×${clip.h} 地块`)
+    },
+
+    /** 设置单位摆放预置并切换到 unit 工具 */
+    setUnitPreset(preset: UnitPlacePreset) {
+      this.unitPreset = preset
+      this.tool = 'unit'
+      this.setStatus(`摆放单位: ${preset.unit || preset.customUnit} (队伍 ${preset.team})`)
+    },
+
+    /**
+     * 在世界坐标处放置单位对象。
+     * 优先写入 UnitObjects 对象组；没有则写入 Triggers；都没有则新建 UnitObjects。
+     */
+    placeUnitAt(worldX: number, worldY: number) {
+      const m = this.map
+      const preset = this.unitPreset
+      if (!m || !preset) return
+      let gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'unitobjects')
+      if (gi < 0) {
+        gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'triggers')
+      }
+      if (gi < 0) {
+        this.addObjectGroup('UnitObjects')
+        gi = this.activeObjectGroupIndex
+      }
+      const tw = m.tilewidth
+      const th = m.tileheight
+      // 对齐到格子中心
+      const tx = Math.floor(worldX / tw)
+      const ty = Math.floor(worldY / th)
+      const x = tx * tw
+      const y = ty * th
+      const props: Record<string, string> = { team: preset.team || this.placeTeam }
+      if (preset.customUnit) props.customUnit = preset.customUnit
+      else props.unit = preset.unit
+      const name = preset.unit || preset.customUnit || 'unit'
+      this.addObject(gi, {
+        name: `${name} (t:${props.team})`,
+        type: 'unit',
+        x,
+        y,
+        width: tw,
+        height: th,
+        rotation: 0,
+        visible: true,
+        gid: preset.gid,
+        properties: props,
+        extraAttrs: {},
+      })
+      this.setStatus(`已放置 ${name} @ ${tx},${ty}`)
     },
 
     // ---------------- 地块集操作 ----------------
