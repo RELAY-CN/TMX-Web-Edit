@@ -1,0 +1,2317 @@
+{
+ "generatedAt": "2026-07-08T14:37:18.872Z",
+ "images": [
+  "bridge.png",
+  "decoration.png",
+  "deepwater.png",
+  "dirt.png",
+  "dirt2dirt_flat.png",
+  "dirt2dirt_ridge.png",
+  "dirt2dirt_ridge_old.png",
+  "dirt2ice_ridge.png",
+  "dirt2lava_ridge.png",
+  "dirt2longgrass_flat.png",
+  "dirt2longgrass_ridge.png",
+  "dirt2mountain_ridge.png",
+  "dirt2sand_flat.png",
+  "dirt2sand_ridge.png",
+  "dirt2shallowwater_ridge.png",
+  "dirt2snow_flat.png",
+  "dirt2snow_ridge.png",
+  "dirt2stone_ridge.png",
+  "dirt_details.png",
+  "dust.png",
+  "fauna.png",
+  "fauna_dark.png",
+  "fauna_highland.png",
+  "ice.png",
+  "ice2dirt_flat.png",
+  "ice2ice_flat.png",
+  "ice2longgrass_flat.png",
+  "ice2nothing_ridge.png",
+  "ice2sand_flat.png",
+  "ice2shallowwater_broken.png",
+  "ice2shallowwater_ridge.png",
+  "ice2snow_flat.png",
+  "lava.png",
+  "lava2dirt_flat.png",
+  "lava2longgrass_flat.png",
+  "lava2sand_flat.png",
+  "lava2snow_flat.png",
+  "longgrass.png",
+  "longgrass2dirt_flat.png",
+  "longgrass2dirt_ridge.png",
+  "longgrass2ice_flat.png",
+  "longgrass2ice_ridge.png",
+  "longgrass2lava_flat.png",
+  "longgrass2lava_ridge.png",
+  "longgrass2longgrass_flat.png",
+  "longgrass2longgrass_hill.png",
+  "longgrass2longgrass_ridge.png",
+  "longgrass2mountain_flat.png",
+  "longgrass2mountain_ridge.png",
+  "longgrass2sand_flat.png",
+  "longgrass2sand_ridge.png",
+  "longgrass2shallowwater_flat.png",
+  "longgrass2shallowwater_ridge.png",
+  "longgrass2shortgrass_flat.png",
+  "longgrass2snow_flat.png",
+  "longgrass2snow_ridge.png",
+  "longgrass2stone_flat.png",
+  "longgrass2stone_ridge.png",
+  "longrass2darkgrass_flat.png",
+  "misc.png",
+  "mountain.png",
+  "mountain2dirt_flat.png",
+  "mountain2dirt_ridge.png",
+  "mountain2highland_flat.png",
+  "mountain2ice_flat.png",
+  "mountain2ice_ridge.png",
+  "mountain2lava_flat.png",
+  "mountain2lava_ridge.png",
+  "mountain2longgrass_flat.png",
+  "mountain2longgrass_ridge.png",
+  "mountain2mountain_flat.png",
+  "mountain2mountain_hill.png",
+  "mountain2mountain_ridge.png",
+  "mountain2nothing_flat.png",
+  "mountain2nothing_ridge.png",
+  "mountain2sand_flat.png",
+  "mountain2sand_ridge.png",
+  "mountain2shallowwater_flat.png",
+  "mountain2shallowwater_ridge.png",
+  "mountain2snow_flat.png",
+  "mountain2snow_ridge.png",
+  "mountain2stone_flat.png",
+  "mountain2stone_ridge.png",
+  "nothing2dust_flat.png",
+  "nothing2road_flat.png",
+  "nothing2sand_flat.png",
+  "sand.png",
+  "sand2.png",
+  "sand2darksand_flat.png",
+  "sand2darksand_ridge.png",
+  "sand2dirt_flat.png",
+  "sand2dirt_ridge.png",
+  "sand2ice_flat.png",
+  "sand2ice_ridge.png",
+  "sand2lava_flat.png",
+  "sand2lava_ridge.png",
+  "sand2longgrass_flat.png",
+  "sand2longgrass_ridge.png",
+  "sand2mountain_flat.png",
+  "sand2mountain_ridge.png",
+  "sand2nothing_flat.png",
+  "sand2sand_flat.png",
+  "sand2sand_hill.png",
+  "sand2sand_ridge.png",
+  "sand2shallowwater_flat.png",
+  "sand2shallowwater_ridge.png",
+  "sand2snow_flat.png",
+  "sand2snow_ridge.png",
+  "sand2stone_flat.png",
+  "sand2stone_ridge.png",
+  "sand_dark.png",
+  "shallowwater.png",
+  "shallowwater2dirt_flat.png",
+  "shallowwater2longgrass_flat.png",
+  "shallowwater2sand_flat.png",
+  "shallowwater2snow_flat.png",
+  "shallowwater2water_flat.png",
+  "shortgrass.png",
+  "snow.png",
+  "snow2dirt_flat.png",
+  "snow2dirt_ridge.png",
+  "snow2ice_ridge.png",
+  "snow2lava_ridge.png",
+  "snow2longgrass_flat.png",
+  "snow2longgrass_ridge.png",
+  "snow2mountain_ridge.png",
+  "snow2sand_flat.png",
+  "snow2sand_ridge.png",
+  "snow2shallowwater_ridge.png",
+  "snow2snow_flat.png",
+  "snow2snow_hill.png",
+  "snow2snow_ridge.png",
+  "snow2stone_ridge.png",
+  "stone.png",
+  "stone2dirt_flat.png",
+  "stone2dirt_ridge.png",
+  "stone2ice_ridge.png",
+  "stone2lava.png",
+  "stone2lava_ridge.png",
+  "stone2longgrass_flat.png",
+  "stone2longgrass_ridge.png",
+  "stone2mountain_ridge.png",
+  "stone2sand_flat.png",
+  "stone2sand_ridge.png",
+  "stone2shallowwater_ridge.png",
+  "stone2snow.png",
+  "stone2snow_flat.png",
+  "stone2snow_ridge.png",
+  "stone2stone_ridge.png",
+  "units.png",
+  "water.png",
+  "water2deepwater_flat.png"
+ ],
+ "tsx": {
+  "decoration.tsx": {
+   "name": "decoration",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "decoration.png",
+   "imagewidth": 140,
+   "imageheight": 100,
+   "tiles": {}
+  },
+  "misc.tsx": {
+   "name": "misc",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 18,
+   "columns": 3,
+   "image": "misc.png",
+   "imagewidth": 79,
+   "imageheight": 120,
+   "tiles": {
+    "4": {
+     "res_pool": ""
+    },
+    "9": {
+     "team": "none",
+     "unit": "tree"
+    },
+    "10": {
+     "team": "none",
+     "type": "1.0",
+     "unit": "tree"
+    },
+    "11": {
+     "team": "none",
+     "type": "1.1",
+     "unit": "tree"
+    },
+    "12": {
+     "team": "none",
+     "type": "1.2",
+     "unit": "tree"
+    },
+    "13": {
+     "team": "none",
+     "type": "1.3",
+     "unit": "tree"
+    },
+    "14": {
+     "team": "none",
+     "type": "1.4",
+     "unit": "tree"
+    }
+   }
+  },
+  "ridges/Dirt Dirt - Ridge.tsx": {
+   "name": "Dirt Dirt - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "dirt2dirt_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Dirt ShalowWater - Ridge.tsx": {
+   "name": "Dirt ShalowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "dirt2shallowwater_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Ice Ice - Flat.tsx": {
+   "name": "Ice Ice - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "ice2ice_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Ice ShallowWater - Broken.tsx": {
+   "name": "Ice ShallowWater - Broken",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "ice2shallowwater_broken.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Ice ShallowWater - Ridge.tsx": {
+   "name": "Ice ShallowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "ice2shallowwater_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {
+    "0": {
+     "cliff": ""
+    },
+    "1": {
+     "cliff": ""
+    },
+    "2": {
+     "cliff": ""
+    },
+    "3": {
+     "cliff": ""
+    },
+    "5": {
+     "cliff": ""
+    },
+    "6": {
+     "cliff": ""
+    },
+    "7": {
+     "cliff": ""
+    },
+    "8": {
+     "cliff": ""
+    },
+    "12": {
+     "cliff": ""
+    },
+    "14": {
+     "cliff": ""
+    },
+    "18": {
+     "cliff": ""
+    },
+    "20": {
+     "cliff": ""
+    }
+   }
+  },
+  "ridges/LongGrass Dirt - Flat.tsx": {
+   "name": "LongGrass Dirt - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2dirt_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/LongGrass Dirt - Ridge.tsx": {
+   "name": "LongGrass Dirt - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2dirt_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/LongGrass LongGrass - Hill.tsx": {
+   "name": "LongGrass LongGrass - Hill",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2longgrass_hill.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/LongGrass LongGrass - Ridge.tsx": {
+   "name": "LongGrass LongGrass - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2longgrass_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 200,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "9": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "12": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    },
+    "18": {
+     "large-cliff": ""
+    },
+    "20": {
+     "large-cliff": ""
+    },
+    "21": {
+     "large-cliff": ""
+    },
+    "23": {
+     "large-cliff": ""
+    },
+    "24": {
+     "large-cliff": ""
+    },
+    "26": {
+     "large-cliff": ""
+    },
+    "27": {
+     "large-cliff": ""
+    },
+    "28": {
+     "large-cliff": ""
+    },
+    "29": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/LongGrass ShallowWater - Flat.tsx": {
+   "name": "LongGrass ShallowWater - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2shallowwater_flat.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {
+    "0": {
+     "cliff-soft": ""
+    },
+    "1": {
+     "cliff-soft": ""
+    },
+    "2": {
+     "cliff-soft": ""
+    },
+    "3": {
+     "cliff-soft": ""
+    },
+    "5": {
+     "cliff-soft": ""
+    },
+    "6": {
+     "cliff-soft": ""
+    },
+    "7": {
+     "cliff-soft": ""
+    },
+    "8": {
+     "cliff-soft": ""
+    },
+    "12": {
+     "cliff-soft": ""
+    },
+    "14": {
+     "cliff-soft": ""
+    },
+    "18": {
+     "cliff-soft": ""
+    },
+    "20": {
+     "cliff-soft": ""
+    }
+   }
+  },
+  "ridges/LongGrass ShallowWater - Ridge.tsx": {
+   "name": "LongGrass ShallowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 30,
+   "columns": 3,
+   "image": "longgrass2shallowwater_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 200,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "9": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "12": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    },
+    "18": {
+     "large-cliff": ""
+    },
+    "20": {
+     "large-cliff": ""
+    },
+    "21": {
+     "large-cliff": ""
+    },
+    "23": {
+     "large-cliff": ""
+    },
+    "24": {
+     "large-cliff": ""
+    },
+    "26": {
+     "large-cliff": ""
+    },
+    "27": {
+     "large-cliff": ""
+    },
+    "28": {
+     "large-cliff": ""
+    },
+    "29": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/LongGrass ShortGrass - Flat.tsx": {
+   "name": "LongGrass ShortGrass - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass2shortgrass_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Dirt - Flat.tsx": {
+   "name": "Mountain Dirt - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2dirt_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Dirt - Ridge.tsx": {
+   "name": "Mountain Dirt - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2dirt_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain LongGrass - Flat.tsx": {
+   "name": "Mountain LongGrass - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2longgrass_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Mountain - Hill.tsx": {
+   "name": "Mountain Mountain - Hill",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2mountain_hill.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Mountain - Ridge.tsx": {
+   "name": "Mountain Mountain - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2mountain_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Nothing - Flat.tsx": {
+   "name": "Mountain Nothing - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2nothing_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Nothing - Ridge.tsx": {
+   "name": "Mountain Nothing - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 15,
+   "columns": 3,
+   "image": "mountain2nothing_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "10": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "13": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/Mountain Sand - Flat.tsx": {
+   "name": "Mountain Sand - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2sand_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Sand - Ridge.tsx": {
+   "name": "Mountain Sand - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 15,
+   "columns": 3,
+   "image": "mountain2sand_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "10": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "13": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/Mountain ShallowWater - Flat.tsx": {
+   "name": "LongGrass ShallowWater - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2shallowwater_flat.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {
+    "0": {
+     "cliff-soft": ""
+    },
+    "1": {
+     "cliff-soft": ""
+    },
+    "2": {
+     "cliff-soft": ""
+    },
+    "3": {
+     "cliff-soft": ""
+    },
+    "5": {
+     "cliff-soft": ""
+    },
+    "6": {
+     "cliff-soft": ""
+    },
+    "7": {
+     "cliff-soft": ""
+    },
+    "8": {
+     "cliff-soft": ""
+    },
+    "12": {
+     "cliff-soft": ""
+    },
+    "14": {
+     "cliff-soft": ""
+    },
+    "18": {
+     "cliff-soft": ""
+    },
+    "20": {
+     "cliff-soft": ""
+    }
+   }
+  },
+  "ridges/Mountain ShallowWater - Ridge.tsx": {
+   "name": "Mountain ShallowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2shallowwater_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Snow - Flat.tsx": {
+   "name": "Mountain Snow - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2snow_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Stone - Flat.tsx": {
+   "name": "Mountain Stone - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain2stone_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Mountain Stone - Ridge.tsx": {
+   "name": "Mountain Stone - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 15,
+   "columns": 3,
+   "image": "mountain2stone_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "10": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "13": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/Nothing Dust - Flat.tsx": {
+   "name": "Nothing Dust - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "nothing2dust_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Nothing Road - Flat.tsx": {
+   "name": "Nothing Road - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "nothing2road_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Nothing Sand - Flat.tsx": {
+   "name": "Nothing Sand - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "nothing2sand_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand Dirt - Flat.tsx": {
+   "name": "Sand Dirt - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2dirt_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand Dirt - Ridge.tsx": {
+   "name": "Sand Dirt - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2dirt_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand LandGrass - Flat.tsx": {
+   "name": "Sand LandGrass - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2longgrass_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand Nothing - Flat - 2.tsx": {
+   "name": "Sand Nothing - Flat - 2",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 21,
+   "columns": 3,
+   "image": "sand2nothing_flat.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {}
+  },
+  "ridges/Sand Nothing - Flat.tsx": {
+   "name": "Sand Nothing - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 21,
+   "columns": 3,
+   "image": "nothing2sand_flat.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {}
+  },
+  "ridges/Sand Sand - Hill.tsx": {
+   "name": "Sand Sand - Hill",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2sand_hill.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand Sand - Ridge.tsx": {
+   "name": "Sand Sand - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2sand_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 140,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "12": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    },
+    "18": {
+     "large-cliff": ""
+    },
+    "20": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/Sand ShallowWater - Flat.tsx": {
+   "name": "Sand ShallowWater - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2shallowwater_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Sand ShallowWater - Ridge.tsx": {
+   "name": "Sand ShallowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand2shallowwater_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/ShallowWater Water - Flat.tsx": {
+   "name": "ShallowWater Water - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "shallowwater2water_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Snow Dirt - Flat.tsx": {
+   "name": "Snow Dirt - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow2dirt_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Snow Dirt - Ridge.tsx": {
+   "name": "Snow Dirt - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow2dirt_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Snow Ice - Ridge.tsx": {
+   "name": "Snow Ice - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow2ice_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Snow Snow - Hill.tsx": {
+   "name": "Snow Snow - Hill",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow2snow_hill.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Snow Snow - ridge.tsx": {
+   "name": "Snow Snow - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow2snow_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Stone Lava - Ridge.tsx": {
+   "name": "Stone Lava - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "stone2lava.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "lava-cliff": ""
+    },
+    "1": {
+     "lava-cliff": ""
+    },
+    "2": {
+     "lava-cliff": ""
+    },
+    "3": {
+     "lava-cliff": ""
+    },
+    "5": {
+     "lava-cliff": ""
+    },
+    "6": {
+     "lava-cliff": ""
+    },
+    "7": {
+     "lava-cliff": ""
+    },
+    "8": {
+     "lava-cliff": ""
+    },
+    "10": {
+     "lava-cliff": ""
+    },
+    "11": {
+     "lava-cliff": ""
+    },
+    "13": {
+     "lava-cliff": ""
+    },
+    "14": {
+     "lava-cliff": ""
+    }
+   }
+  },
+  "ridges/Stone Sand - Flat.tsx": {
+   "name": "Stone Sand - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "stone2sand_flat.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {}
+  },
+  "ridges/Stone ShallowWater - ridge.tsx": {
+   "name": "Stone ShallowWater - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "stone2shallowwater_ridge.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Stone Snow - ridge.tsx": {
+   "name": "Stone Snow - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "stone2snow.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "ridges/Stone Stone - Ridge.tsx": {
+   "name": "Stone Stone - Ridge",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 15,
+   "columns": 3,
+   "image": "stone2stone_ridge.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "large-cliff": ""
+    },
+    "1": {
+     "large-cliff": ""
+    },
+    "2": {
+     "large-cliff": ""
+    },
+    "3": {
+     "large-cliff": ""
+    },
+    "5": {
+     "large-cliff": ""
+    },
+    "6": {
+     "large-cliff": ""
+    },
+    "7": {
+     "large-cliff": ""
+    },
+    "8": {
+     "large-cliff": ""
+    },
+    "9": {
+     "large-cliff": ""
+    },
+    "10": {
+     "large-cliff": ""
+    },
+    "11": {
+     "large-cliff": ""
+    },
+    "12": {
+     "large-cliff": ""
+    },
+    "13": {
+     "large-cliff": ""
+    },
+    "14": {
+     "large-cliff": ""
+    }
+   }
+  },
+  "ridges/Water DeepWater - Flat.tsx": {
+   "name": "Water DeepWater - Flat",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "water2deepwater_flat.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Deep Water.tsx": {
+   "name": "Deep Water",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "deepwater.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Dirt.tsx": {
+   "name": "Dirt",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "dirt.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Dirt_Details.tsx": {
+   "name": "Dirt_Details",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "dirt_details.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Dust.tsx": {
+   "name": "Dust",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "dust.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Ice.tsx": {
+   "name": "Ice",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "ice.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Lava.tsx": {
+   "name": "Lava",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "lava.png",
+   "imagewidth": 60,
+   "imageheight": 100,
+   "tiles": {
+    "0": {
+     "lava-cliff": ""
+    },
+    "1": {
+     "lava-cliff": ""
+    },
+    "2": {
+     "lava-cliff": ""
+    },
+    "3": {
+     "lava-cliff": ""
+    },
+    "4": {
+     "lava": ""
+    },
+    "5": {
+     "lava-cliff": ""
+    },
+    "6": {
+     "lava-cliff": ""
+    },
+    "7": {
+     "lava-cliff": ""
+    },
+    "8": {
+     "lava-cliff": ""
+    },
+    "10": {
+     "lava-cliff": ""
+    },
+    "11": {
+     "lava-cliff": ""
+    },
+    "13": {
+     "lava-cliff": ""
+    },
+    "14": {
+     "lava-cliff": ""
+    }
+   }
+  },
+  "terrain/Long Grass.tsx": {
+   "name": "Long Grass",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "longgrass.png",
+   "imagewidth": 100,
+   "imageheight": 160,
+   "tiles": {
+    "16": {
+     "trees": ""
+    }
+   }
+  },
+  "terrain/Mountain.tsx": {
+   "name": "Mountain",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "mountain.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Sand.tsx": {
+   "name": "Sand",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "sand.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Shallow Water.tsx": {
+   "name": "Shallow Water",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "shallowwater.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Short Grass.tsx": {
+   "name": "Short Grass",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "shortgrass.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Snow.tsx": {
+   "name": "Snow",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "snow.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Stone.tsx": {
+   "name": "Stone",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 0,
+   "columns": 0,
+   "image": "stone.png",
+   "imagewidth": 0,
+   "imageheight": 0,
+   "tiles": {}
+  },
+  "terrain/Water.tsx": {
+   "name": "Water",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 0,
+   "margin": 0,
+   "tilecount": 1,
+   "columns": 1,
+   "image": "water.png",
+   "imagewidth": 20,
+   "imageheight": 20,
+   "tiles": {
+    "0": {
+     "water": ""
+    }
+   }
+  },
+  "units.tsx": {
+   "name": "units",
+   "tilewidth": 20,
+   "tileheight": 20,
+   "spacing": 1,
+   "margin": 1,
+   "tilecount": 279,
+   "columns": 9,
+   "image": "units.png",
+   "imagewidth": 200,
+   "imageheight": 665,
+   "tiles": {
+    "0": {
+     "team": "0",
+     "unit": "builderShip"
+    },
+    "1": {
+     "team": "0",
+     "unit": "builder"
+    },
+    "2": {
+     "team": "0",
+     "unit": "tank"
+    },
+    "3": {
+     "team": "0",
+     "unit": "artillery"
+    },
+    "4": {
+     "team": "0",
+     "unit": "heavyTank"
+    },
+    "5": {
+     "team": "0",
+     "unit": "hoverTank"
+    },
+    "6": {
+     "team": "0",
+     "unit": "commandCenter"
+    },
+    "7": {
+     "team": "0",
+     "unit": "turret"
+    },
+    "8": {
+     "team": "0",
+     "unit": "antiAirTurret"
+    },
+    "9": {
+     "team": "0",
+     "unit": "experimentalSpider"
+    },
+    "10": {
+     "team": "0",
+     "unit": "helicopter"
+    },
+    "11": {
+     "team": "0",
+     "unit": "airShip"
+    },
+    "12": {
+     "team": "0",
+     "unit": "amphibiousJet"
+    },
+    "13": {
+     "team": "0",
+     "unit": "mechFactory"
+    },
+    "14": {
+     "team": "0",
+     "unit": "seaFactory"
+    },
+    "15": {
+     "team": "0",
+     "unit": "landFactory"
+    },
+    "16": {
+     "team": "0",
+     "unit": "airFactory"
+    },
+    "17": {
+     "team": "0",
+     "unit": "extractor"
+    },
+    "18": {
+     "team": "0",
+     "unit": "attackSubmarine"
+    },
+    "19": {
+     "team": "0",
+     "unit": "scoutShip"
+    },
+    "20": {
+     "team": "0",
+     "unit": "hovercraft"
+    },
+    "21": {
+     "team": "0",
+     "unit": "gunBoat"
+    },
+    "22": {
+     "team": "0",
+     "unit": "battleShip"
+    },
+    "23": {
+     "team": "0",
+     "unit": "laserDefence"
+    },
+    "24": {
+     "team": "0",
+     "unit": "experimentalLandFactory"
+    },
+    "25": {
+     "team": "0",
+     "unit": "repairbay"
+    },
+    "26": {
+     "team": "0",
+     "unit": "fabricator"
+    },
+    "27": {
+     "team": "0",
+     "unit": "experimentalHoverTank"
+    },
+    "28": {
+     "team": "0",
+     "unit": "experimentalTank"
+    },
+    "29": {
+     "team": "0",
+     "unit": "mammothTank"
+    },
+    "30": {
+     "team": "0",
+     "unit": "dropship"
+    },
+    "31": {
+     "team": "0",
+     "unit": "gunShip"
+    },
+    "32": {
+     "team": "0",
+     "unit": "laserTank"
+    },
+    "33": {
+     "team": "0",
+     "unit": "heavyHoverTank"
+    },
+    "34": {
+     "team": "0",
+     "unit": "nukeLaucher"
+    },
+    "35": {
+     "team": "0",
+     "unit": "antiNukeLaucher"
+    },
+    "36": {
+     "team": "0",
+     "unit": "experimentalDropship"
+    },
+    "37": {
+     "team": "0",
+     "unit": "heavyBattleship"
+    },
+    "38": {
+     "team": "0",
+     "unit": "missileTank"
+    },
+    "39": {
+     "team": "0",
+     "unit": "combatEngineer"
+    },
+    "40": {
+     "team": "0",
+     "unit": "bomber"
+    },
+    "41": {
+     "team": "0",
+     "unit": "mechMinigun"
+    },
+    "42": {
+     "team": "0",
+     "unit": "mechBunker"
+    },
+    "45": {
+     "team": "1",
+     "unit": "builderShip"
+    },
+    "46": {
+     "team": "1",
+     "unit": "builder"
+    },
+    "47": {
+     "team": "1",
+     "unit": "tank"
+    },
+    "48": {
+     "team": "1",
+     "unit": "artillery"
+    },
+    "49": {
+     "team": "1",
+     "unit": "heavyTank"
+    },
+    "50": {
+     "team": "1",
+     "unit": "hoverTank"
+    },
+    "51": {
+     "team": "1",
+     "unit": "commandCenter"
+    },
+    "52": {
+     "team": "1",
+     "unit": "turret"
+    },
+    "53": {
+     "team": "1",
+     "unit": "antiAirTurret"
+    },
+    "54": {
+     "team": "1",
+     "unit": "experimentalSpider"
+    },
+    "55": {
+     "team": "1",
+     "unit": "helicopter"
+    },
+    "56": {
+     "team": "1",
+     "unit": "airShip"
+    },
+    "57": {
+     "team": "1",
+     "unit": "amphibiousJet"
+    },
+    "58": {
+     "team": "1",
+     "unit": "mechFactory"
+    },
+    "59": {
+     "team": "1",
+     "unit": "seaFactory"
+    },
+    "60": {
+     "team": "1",
+     "unit": "landFactory"
+    },
+    "61": {
+     "team": "1",
+     "unit": "airFactory"
+    },
+    "62": {
+     "team": "1",
+     "unit": "extractor"
+    },
+    "63": {
+     "team": "1",
+     "unit": "attackSubmarine"
+    },
+    "64": {
+     "team": "1",
+     "unit": "scoutShip"
+    },
+    "65": {
+     "team": "1",
+     "unit": "hovercraft"
+    },
+    "66": {
+     "team": "1",
+     "unit": "gunBoat"
+    },
+    "67": {
+     "team": "1",
+     "unit": "battleShip"
+    },
+    "68": {
+     "team": "1",
+     "unit": "laserDefence"
+    },
+    "69": {
+     "team": "1",
+     "unit": "experimentalLandFactory"
+    },
+    "70": {
+     "team": "1",
+     "unit": "repairbay"
+    },
+    "71": {
+     "team": "1",
+     "unit": "fabricator"
+    },
+    "72": {
+     "team": "1",
+     "unit": "experimentalHoverTank"
+    },
+    "73": {
+     "team": "1",
+     "unit": "experimentalTank"
+    },
+    "74": {
+     "team": "1",
+     "unit": "mammothTank"
+    },
+    "75": {
+     "team": "1",
+     "unit": "dropship"
+    },
+    "76": {
+     "team": "1",
+     "unit": "gunShip"
+    },
+    "77": {
+     "team": "1",
+     "unit": "laserTank"
+    },
+    "78": {
+     "team": "1",
+     "unit": "heavyHoverTank"
+    },
+    "79": {
+     "team": "1",
+     "unit": "nukeLaucher"
+    },
+    "80": {
+     "team": "1",
+     "unit": "antiNukeLaucher"
+    },
+    "81": {
+     "team": "2",
+     "unit": "experimentalSpider"
+    },
+    "82": {
+     "team": "2",
+     "unit": "builder"
+    },
+    "83": {
+     "team": "2",
+     "unit": "tank"
+    },
+    "84": {
+     "team": "2",
+     "unit": "heavyHoverTank"
+    },
+    "85": {
+     "team": "2",
+     "unit": "heavyTank"
+    },
+    "87": {
+     "team": "2",
+     "unit": "commandCenter"
+    },
+    "88": {
+     "team": "2",
+     "unit": "turret"
+    },
+    "89": {
+     "team": "2",
+     "unit": "antiAirTurret"
+    },
+    "90": {
+     "team": "1",
+     "unit": "experimentalDropship"
+    },
+    "91": {
+     "team": "1",
+     "unit": "heavyBattleship"
+    },
+    "92": {
+     "team": "1",
+     "unit": "missileTank"
+    },
+    "93": {
+     "team": "1",
+     "unit": "combatEngineer"
+    },
+    "96": {
+     "team": "2",
+     "unit": "landFactory"
+    },
+    "97": {
+     "team": "2",
+     "unit": "airFactory"
+    },
+    "98": {
+     "team": "2",
+     "unit": "extractor"
+    },
+    "99": {
+     "showFog": "5"
+    },
+    "100": {
+     "team": "3",
+     "unit": "builder"
+    },
+    "101": {
+     "team": "3",
+     "unit": "experimentalSpider"
+    },
+    "102": {
+     "team": "3",
+     "unit": "heavyHoverTank"
+    },
+    "105": {
+     "team": "3",
+     "unit": "commandCenter"
+    },
+    "108": {
+     "showFog": "10"
+    },
+    "109": {
+     "team": "3",
+     "unit": "helicopter"
+    },
+    "117": {
+     "showFog": "20"
+    },
+    "118": {
+     "team": "3",
+     "unit": "scoutShip"
+    },
+    "119": {
+     "team": "3",
+     "unit": "hovercraft"
+    },
+    "120": {
+     "team": "3",
+     "unit": "gunBoat"
+    },
+    "124": {
+     "team": "3",
+     "unit": "nukeLaucher"
+    },
+    "125": {
+     "team": "3",
+     "unit": "antiNukeLaucher"
+    },
+    "126": {
+     "showFog": "40"
+    },
+    "136": {
+     "team": "4",
+     "unit": "builder"
+    },
+    "141": {
+     "team": "4",
+     "unit": "commandCenter"
+    },
+    "144": {
+     "team": "4",
+     "unit": "ladyBug"
+    },
+    "145": {
+     "team": "4",
+     "unit": "bugMelee"
+    },
+    "146": {
+     "team": "4",
+     "unit": "bugSpore"
+    },
+    "147": {
+     "team": "4",
+     "unit": "bugNest"
+    },
+    "148": {
+     "team": "4",
+     "unit": "bugRanged"
+    },
+    "153": {
+     "team": "5",
+     "unit": "builder"
+    },
+    "154": {
+     "team": "5",
+     "unit": "commandCenter"
+    },
+    "155": {
+     "team": "6",
+     "unit": "builder"
+    },
+    "156": {
+     "team": "6",
+     "unit": "commandCenter"
+    },
+    "157": {
+     "team": "7",
+     "unit": "builder"
+    },
+    "158": {
+     "team": "7",
+     "unit": "commandCenter"
+    },
+    "159": {
+     "team": "8",
+     "unit": "builder"
+    },
+    "160": {
+     "team": "8",
+     "unit": "commandCenter"
+    },
+    "171": {
+     "team": "0",
+     "unit": "ladyBug"
+    },
+    "172": {
+     "team": "0",
+     "unit": "bugMelee"
+    },
+    "173": {
+     "team": "0",
+     "unit": "bugSpore"
+    },
+    "174": {
+     "team": "0",
+     "unit": "bugNest"
+    },
+    "175": {
+     "team": "0",
+     "unit": "bugRanged"
+    },
+    "177": {
+     "team": "9",
+     "unit": "builder"
+    },
+    "178": {
+     "team": "9",
+     "unit": "commandCenter"
+    },
+    "180": {
+     "team": "1",
+     "unit": "ladyBug"
+    },
+    "181": {
+     "team": "1",
+     "unit": "bugMelee"
+    },
+    "182": {
+     "team": "1",
+     "unit": "bugSpore"
+    },
+    "183": {
+     "team": "1",
+     "unit": "bugNest"
+    },
+    "184": {
+     "team": "1",
+     "unit": "bugRanged"
+    },
+    "188": {
+     "team": "-1",
+     "unit": "crystalResource"
+    },
+    "189": {
+     "team": "1",
+     "unit": "bugMeleeSmall"
+    },
+    "190": {
+     "team": "1",
+     "unit": "bugMeleeLarge"
+    },
+    "207": {
+     "team": "-1",
+     "unit": "builderShip"
+    },
+    "208": {
+     "team": "-1",
+     "unit": "builder"
+    },
+    "209": {
+     "team": "-1",
+     "unit": "tank"
+    },
+    "210": {
+     "team": "-1",
+     "unit": "artillery"
+    },
+    "211": {
+     "team": "-1",
+     "unit": "heavyTank"
+    },
+    "212": {
+     "team": "-1",
+     "unit": "hoverTank"
+    },
+    "213": {
+     "team": "-1",
+     "unit": "commandCenter"
+    },
+    "214": {
+     "team": "-1",
+     "unit": "turret"
+    },
+    "215": {
+     "team": "-1",
+     "unit": "antiAirTurret"
+    },
+    "217": {
+     "team": "-1",
+     "unit": "helicopter"
+    },
+    "218": {
+     "team": "-1",
+     "unit": "airShip"
+    },
+    "219": {
+     "team": "-1",
+     "unit": "amphibiousJet"
+    },
+    "221": {
+     "team": "-1",
+     "unit": "seaFactory"
+    },
+    "222": {
+     "team": "-1",
+     "unit": "landFactory"
+    },
+    "223": {
+     "team": "-1",
+     "unit": "airFactory"
+    },
+    "224": {
+     "team": "-1",
+     "unit": "extractor"
+    },
+    "225": {
+     "team": "-1",
+     "unit": "attackSubmarine"
+    },
+    "226": {
+     "team": "-1",
+     "unit": "scoutShip"
+    },
+    "227": {
+     "team": "-1",
+     "unit": "hovercraft"
+    },
+    "228": {
+     "team": "-1",
+     "unit": "gunBoat"
+    },
+    "229": {
+     "team": "-1",
+     "unit": "battleShip"
+    },
+    "230": {
+     "team": "-1",
+     "unit": "laserDefence"
+    },
+    "231": {
+     "team": "-1",
+     "unit": "experimentalLandFactory"
+    },
+    "232": {
+     "team": "-1",
+     "unit": "repairbay"
+    },
+    "233": {
+     "team": "-1",
+     "unit": "fabricator"
+    },
+    "235": {
+     "team": "-1",
+     "unit": "experimentalTank"
+    },
+    "236": {
+     "team": "-1",
+     "unit": "mammothTank"
+    },
+    "237": {
+     "team": "-1",
+     "unit": "dropship"
+    },
+    "238": {
+     "team": "-1",
+     "unit": "gunShip"
+    },
+    "239": {
+     "team": "-1",
+     "unit": "laserTank"
+    },
+    "240": {
+     "team": "-1",
+     "unit": "heavyHoverTank"
+    },
+    "244": {
+     "team": "-1",
+     "unit": "experiementalCarrier"
+    },
+    "245": {
+     "team": "-1",
+     "unit": "nautilusSubmarineSurface"
+    },
+    "246": {
+     "team": "-1",
+     "unit": "heavyMissileShip"
+    },
+    "247": {
+     "team": "-1",
+     "unit": "nautilusSubmarine"
+    },
+    "252": {
+     "team": "1",
+     "type": "gunT2",
+     "unit": "turret"
+    },
+    "253": {
+     "team": "1",
+     "type": "artillery",
+     "unit": "turret"
+    },
+    "254": {
+     "team": "1",
+     "type": "flamethrower",
+     "unit": "turret"
+    },
+    "256": {
+     "team": "0",
+     "type": "gunT2",
+     "unit": "turret"
+    },
+    "257": {
+     "team": "0",
+     "type": "artillery",
+     "unit": "turret"
+    },
+    "258": {
+     "team": "0",
+     "type": "flamethrower",
+     "unit": "turret"
+    },
+    "261": {
+     "team": "1",
+     "unit": "mechMissile"
+    },
+    "262": {
+     "team": "1",
+     "unit": "mechLaser"
+    },
+    "265": {
+     "team": "1",
+     "unit": "scout"
+    },
+    "266": {
+     "team": "1",
+     "unit": "lightGunship"
+    },
+    "270": {
+     "team": "1",
+     "unit": "mechGun"
+    }
+   }
+  }
+ }
+}
