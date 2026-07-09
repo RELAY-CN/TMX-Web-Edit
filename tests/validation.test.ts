@@ -43,4 +43,37 @@ describe('地图校验', () => {
     expect(issues.some((i) => i.id.startsWith('unitadd-no-spawn'))).toBe(true)
     expect(issues.some((i) => i.id === 'map-info-no-win')).toBe(true)
   })
+
+  it('检出无效 gid、tileset margin 兼容风险、单位对象缺属性和可优化自定义图块', () => {
+    const xml = `<?xml version="1.0"?>
+<map version="1.2" orientation="orthogonal" width="2" height="1" tilewidth="20" tileheight="20" nextobjectid="8">
+ <tileset firstgid="1" source="terrain/Dirt.tsx"/>
+ <tileset firstgid="100" name="custom" tilewidth="20" tileheight="20" margin="1" tilecount="4" columns="2">
+  <properties><property name="embedded_png">iVBORw0KGgoAAAANSUhEUg==</property></properties>
+  <image source="custom.png" width="42" height="42"/>
+ </tileset>
+ <layer name="Ground" width="2" height="1">
+  <data encoding="csv">100,105</data>
+ </layer>
+ <layer name="Items" width="2" height="1">
+  <data encoding="csv">0,0</data>
+ </layer>
+ <objectgroup name="Triggers">
+  <object id="1" name="map_info" x="0" y="0" width="20" height="20">
+   <properties><property name="type" value="skirmish"/></properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="UnitObjects">
+  <object id="7" name="bad unit" type="unit" x="0" y="0" width="20" height="20"/>
+ </objectgroup>
+</map>`
+    const map = parseTmx(xml, resolveTsx)
+    const issues = validateMap(map)
+
+    expect(issues.some((i) => i.id === 'invalid-tile-gid-1-0')).toBe(true)
+    expect(issues.some((i) => i.id === 'tileset-margin-1')).toBe(true)
+    expect(issues.some((i) => i.id === 'unit-object-no-team-7')).toBe(true)
+    expect(issues.some((i) => i.id === 'unit-object-no-unit-7')).toBe(true)
+    expect(issues.some((i) => i.id === 'custom-tileset-unused-1')).toBe(true)
+  })
 })

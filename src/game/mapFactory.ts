@@ -4,6 +4,7 @@
  *  - 必须有名为 Ground 的图层（每格都要有地块）
  *  - 必须有名为 Items 的图层
  *  - 建议有 Triggers 对象组 + map_info 对象
+ *  - 建议有 UnitObjects 对象组（摆放单位；游戏导出亦用此名）
  */
 import type { TmxLayer, TmxMap, TmxObjectGroup, TmxTileset } from '@/tmx/types'
 import { resolveTsx } from './builtin'
@@ -85,7 +86,16 @@ export function createNewMap(opts: NewMapOptions): TmxMap {
     ],
     extraAttrs: {},
   }
-  map.layers.push(triggers)
+  const unitObjects: TmxObjectGroup = {
+    kind: 'objectgroup',
+    name: 'UnitObjects',
+    visible: true,
+    opacity: 1,
+    properties: {},
+    objects: [],
+    extraAttrs: {},
+  }
+  map.layers.push(triggers, unitObjects)
   map.nextobjectid = 2
   return map
 }

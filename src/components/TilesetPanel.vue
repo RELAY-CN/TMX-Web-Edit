@@ -8,6 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { listBuiltinTsx } from '@/game/builtin'
 import { tileSourceRect } from '@/tmx/images'
+import { matchingLocalTileIds, tilesetMatchesQuery } from '@/tmx/tilesetSearch'
 
 const store = useEditorStore()
 const { structRev, activeTilesetIndex } = storeToRefs(store)
@@ -19,12 +20,24 @@ const importName = ref('custom')
 const importTileSize = ref(20)
 const importSpacing = ref(0)
 const importFile = ref<File | null>(null)
+const tileQuery = ref('')
 
 const tilesets = computed(() => {
   void structRev.value
   return store.map?.tilesets ?? []
 })
 const activeTs = computed(() => tilesets.value[activeTilesetIndex.value] ?? null)
+const filteredTilesets = computed(() => {
+  const q = tileQuery.value
+  return tilesets.value
+    .map((ts, index) => ({ ts, index }))
+    .filter(({ ts }) => tilesetMatchesQuery(ts, q))
+})
+const activeMatches = computed(() => {
+  const ts = activeTs.value
+  if (!ts) return new Set<number>()
+  return new Set(matchingLocalTileIds(ts, tileQuery.value))
+})
 
 const builtinList = listBuiltinTsx()
 const builtinGroups = computed(() => {
@@ -82,6 +95,21 @@ function redraw() {
     ctx.lineTo(canvas.width, r * ts.tileheight * SCALE + 0.5)
   }
   ctx.stroke()
+  // 搜索命中框
+  if (activeMatches.value.size > 0) {
+    ctx.strokeStyle = '#ffd166'
+    ctx.lineWidth = 2
+    for (const id of activeMatches.value) {
+      const x = id % cols
+      const y = Math.floor(id / cols)
+      ctx.strokeRect(
+        x * ts.tilewidth * SCALE + 2,
+        y * ts.tileheight * SCALE + 2,
+        ts.tilewidth * SCALE - 4,
+        ts.tileheight * SCALE - 4,
+      )
+    }
+  }
   // 选择框
   if (sel.value) {
     const s = sel.value
@@ -101,6 +129,7 @@ function redraw() {
 }
 
 watch([activeTs, structRev], () => nextTick(redraw), { immediate: true })
+watch(tileQuery, () => nextTick(redraw))
 watch(sel, redraw, { deep: true })
 
 function tileAt(e: MouseEvent): { x: number; y: number } | null {
@@ -217,19 +246,29 @@ async function onAttachFile(e: Event) {
       </span>
     </div>
 
+    <div class="ts-search">
+      <input
+        v-model="tileQuery"
+        placeholder="搜索地块集 / 属性 / #id / gid:101"
+        aria-label="搜索地块"
+      />
+      <button v-if="tileQuery" class="icon" title="清空搜索" @click="tileQuery = ''">×</button>
+    </div>
+
     <div class="ts-tabs scroll">
       <button
-        v-for="(ts, i) in tilesets"
-        :key="i"
-        :class="{ active: i === activeTilesetIndex }"
+        v-for="{ ts, index } in filteredTilesets"
+        :key="index"
+        :class="{ active: index === activeTilesetIndex }"
         :title="(ts.source || ts.image) + (ts.builtin ? '（内置，不内嵌）' : ts.missing ? '（图片缺失）' : '（自定义，保存时内嵌）')"
-        @click="store.activeTilesetIndex = i"
+        @click="store.activeTilesetIndex = index"
       >
         <span v-if="ts.builtin" class="tag builtin">内置</span>
         <span v-else-if="ts.missing" class="tag missing">缺失</span>
         <span v-else class="tag custom">内嵌</span>
         {{ ts.name || ts.image }}
       </button>
+      <span v-if="tileQuery && !filteredTilesets.length" class="no-match">无匹配地块集</span>
     </div>
 
     <div class="ts-body scroll" @mouseleave="onUp">
@@ -249,7 +288,9 @@ async function onAttachFile(e: Event) {
         @contextmenu.prevent
       />
     </div>
-    <div class="ts-info">{{ hoverInfo || '拖选可作为多格图章' }}</div>
+    <div class="ts-info">
+      {{ hoverInfo || (activeMatches.size ? '黄色框为搜索命中的图块' : '拖选可作为多格图章') }}
+    </div>
 
     <!-- 添加内置地块集 -->
     <div v-if="showAddBuiltin" class="dialog-mask" @click.self="showAddBuiltin = false">
@@ -314,6 +355,17 @@ async function onAttachFile(e: Event) {
   display: flex;
   gap: 4px;
 }
+.ts-search {
+  display: flex;
+  gap: 5px;
+  padding: 0 8px 8px;
+}
+.ts-search input {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 5px 7px;
+}
 .ts-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -329,6 +381,11 @@ async function onAttachFile(e: Event) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.no-match {
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 3px 2px;
 }
 .tag {
   display: inline-block;

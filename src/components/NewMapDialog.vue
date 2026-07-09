@@ -53,7 +53,7 @@ async function create() {
           <select v-model="groundTsx">
             <option v-for="t in terrainOptions" :key="t.path" :value="t.path">{{ t.def.name }}</option>
           </select>
-          <span class="hint">自动创建 Ground / Items 图层与 Triggers 对象组（含 map_info）</span>
+          <span class="hint">自动创建 Ground / Items、Triggers（含 map_info）与 UnitObjects</span>
         </div>
       </div>
       <div class="dialog-footer">

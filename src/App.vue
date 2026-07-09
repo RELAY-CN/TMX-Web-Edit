@@ -11,6 +11,7 @@ import UnitPanel from '@/components/UnitPanel.vue'
 import NewMapDialog from '@/components/NewMapDialog.vue'
 import MapSettingsDialog from '@/components/MapSettingsDialog.vue'
 import ValidationPanel from '@/components/ValidationPanel.vue'
+import TutorialGuide from '@/components/TutorialGuide.vue'
 import { validateMap } from '@/game/validation'
 import { saveDraft, loadDraft, clearDraft, hasDraft, type DraftMeta } from '@/utils/autosave'
 
@@ -21,6 +22,7 @@ const { tool, statusMessage, dirty, fileName, loading, showGrid, showObjects, hi
 const showNewMap = ref(false)
 const showSettings = ref(false)
 const showValidation = ref(false)
+const showTutorial = ref(false)
 const errorText = ref('')
 const rightTab = ref<'objects' | 'units'>('objects')
 const canvasRef = ref<InstanceType<typeof MapCanvas> | null>(null)
@@ -72,9 +74,9 @@ async function openFile() {
   }
 }
 
-function saveFile() {
+async function saveFile() {
   try {
-    const text = store.exportTmxText()
+    const { text, stats } = await store.exportOptimizedTmxText()
     const blob = new Blob([text], { type: 'application/xml' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -84,7 +86,11 @@ function saveFile() {
     store.dirty = false
     clearDraft()
     draftMeta.value = null
-    store.setStatus('已导出 ' + a.download + '（内置地块仅引用，自定义地块已内嵌）')
+    const optimized =
+      stats.compactedTilesets || stats.removedTilesets
+        ? `；已优化自定义地块集 ${stats.compactedTilesets} 个，移除未使用 ${stats.removedTilesets} 个`
+        : ''
+    store.setStatus('已导出 ' + a.download + '（内置地块仅引用，自定义地块已内嵌' + optimized + '）')
   } catch (e) {
     errorText.value = String((e as Error).message ?? e)
   }
@@ -209,6 +215,9 @@ onBeforeUnmount(() => {
           <span v-if="errorCount" class="badge err">{{ errorCount }}</span>
           <span v-else-if="warnCount" class="badge warn">{{ warnCount }}</span>
         </button>
+        <button class="tutorial-btn" title="可选新手教程（不强制）" @click="showTutorial = true">
+          新手教程
+        </button>
       </div>
       <div class="toolbar">
         <button
@@ -247,19 +256,24 @@ onBeforeUnmount(() => {
       <section class="center">
         <MapCanvas ref="canvasRef" />
       </section>
-      <aside class="right">
+      <aside class="right" :class="{ 'mode-units': rightTab === 'units', 'mode-objects': rightTab === 'objects' }">
         <div class="right-top">
           <LayerPanel />
         </div>
         <div class="right-tabs">
-          <button :class="{ active: rightTab === 'objects' }" @click="rightTab = 'objects'">对象</button>
-          <button :class="{ active: rightTab === 'units' }" @click="rightTab = 'units'">单位</button>
+          <button :class="{ active: rightTab === 'objects' }" @click="rightTab = 'objects'; store.tool = store.tool === 'unit' ? 'object' : store.tool">
+            对象
+          </button>
+          <button :class="{ active: rightTab === 'units' }" @click="rightTab = 'units'; store.tool = 'unit'">
+            单位摆放
+          </button>
         </div>
         <div class="right-mid">
           <ObjectPanel v-if="rightTab === 'objects'" />
           <UnitPanel v-else />
         </div>
-        <div class="right-bottom scroll">
+        <!-- 单位摆放时属性区无用且占空间，直接隐藏；对象模式才显示 -->
+        <div v-if="rightTab === 'objects'" class="right-bottom scroll">
           <ObjectInspector />
         </div>
       </aside>
@@ -280,6 +294,7 @@ onBeforeUnmount(() => {
           <button class="primary" @click="showNewMap = true">新建地图</button>
           <button @click="openFile">打开 .tmx 文件</button>
           <button v-if="draftMeta" @click="restoreDraft">恢复草稿</button>
+          <button @click="showTutorial = true">新手教程</button>
         </div>
       </div>
     </main>
@@ -304,6 +319,7 @@ onBeforeUnmount(() => {
     <NewMapDialog v-if="showNewMap" @close="showNewMap = false" />
     <MapSettingsDialog v-if="showSettings" @close="showSettings = false" />
     <ValidationPanel v-if="showValidation" @close="showValidation = false" @jump-tile="onJumpTile" />
+    <TutorialGuide :open="showTutorial" @close="showTutorial = false" />
 
     <div v-if="showDraftPrompt && draftMeta" class="dialog-mask" @click.self="showDraftPrompt = false">
       <div class="dialog">
@@ -383,6 +399,11 @@ onBeforeUnmount(() => {
   background: #6b5a2b;
   color: #ffe0a0;
 }
+.tutorial-btn {
+  margin-left: 4px;
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
 .sep {
   width: 1px;
   height: 18px;
@@ -419,8 +440,15 @@ onBeforeUnmount(() => {
   border-left: 1px solid var(--border);
   background: var(--panel);
   display: grid;
-  grid-template-rows: minmax(100px, 22%) auto minmax(120px, 28%) 1fr;
   min-height: 0;
+}
+/* 对象模式：图层 + 对象列表 + 属性 */
+.right.mode-objects {
+  grid-template-rows: minmax(90px, 18%) auto minmax(140px, 32%) 1fr;
+}
+/* 单位摆放模式：压缩图层，单位列表占满剩余空间，不显示属性 */
+.right.mode-units {
+  grid-template-rows: minmax(72px, 14%) auto 1fr;
 }
 .right-top,
 .right-mid {
@@ -428,18 +456,23 @@ onBeforeUnmount(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+.right.mode-units .right-mid {
+  border-bottom: none;
 }
 .right-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
+  flex-shrink: 0;
 }
 .right-tabs button {
   flex: 1;
   border: none;
   border-radius: 0;
   background: transparent;
-  padding: 5px;
+  padding: 6px;
   border-bottom: 2px solid transparent;
 }
 .right-tabs button.active {
@@ -451,6 +484,7 @@ onBeforeUnmount(() => {
 .right-mid :deep(.unit-panel),
 .right-top :deep(.layer-panel) {
   height: 100%;
+  min-height: 0;
 }
 .right-bottom {
   min-height: 0;

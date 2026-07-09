@@ -134,7 +134,7 @@ function layerWarning(name: string, kind: 'tile' | 'object'): string {
           <div class="form-row">
             <label>名称</label>
             <input v-model="addName" placeholder="图层名称" @keydown.enter="doAdd" />
-            <span class="hint">游戏要求必须有 Ground 与 Items 图层；触发器放在名为 Triggers 的对象组</span>
+            <span class="hint">游戏要求必须有 Ground 与 Items；触发器放 Triggers，单位放 UnitObjects</span>
           </div>
           <div class="form-row">
             <label>常用名称</label>

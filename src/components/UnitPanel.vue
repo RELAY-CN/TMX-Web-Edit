@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * 单位摆放面板：从内置单位列表或 units.tsx 地块集选取单位，
- * 切换到 unit 工具后在画布点击放置（写入 UnitObjects / Triggers）。
+ * 切换到 unit 工具后在画布点击放置（写入 UnitObjects 对象组）。
  */
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -102,7 +102,7 @@ function isActive(name: string) {
       </button>
       <div v-if="!filtered.length" class="empty">无匹配单位</div>
     </div>
-    <p class="footer-hint">选中后在画布点击放置；写入 UnitObjects（或 Triggers）对象组</p>
+    <p class="footer-hint">选中后在画布点击放置；写入 UnitObjects（游戏官方对象组名，无则自动创建）</p>
   </div>
 </template>
 
@@ -137,6 +137,7 @@ function isActive(name: string) {
   flex: 1;
   min-height: 0;
   padding: 0 6px 6px;
+  overflow: auto;
 }
 .unit-item {
   display: flex;
@@ -144,8 +145,9 @@ function isActive(name: string) {
   gap: 6px;
   width: 100%;
   text-align: left;
-  margin-bottom: 2px;
-  padding: 3px 6px;
+  margin-bottom: 1px;
+  padding: 4px 6px;
+  min-height: 28px;
 }
 .unit-item .cat {
   font-size: 10px;

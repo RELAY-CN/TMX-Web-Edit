@@ -9,6 +9,7 @@ import { isObjectGroup, isTileLayer } from '@/tmx/types'
 import { parseTmx } from '@/tmx/parse'
 import { serializeTmx } from '@/tmx/serialize'
 import { loadAllTilesetBitmaps, loadTilesetBitmap, syncTilesetGeometry } from '@/tmx/images'
+import { optimizeEmbeddedTilesetsForSerialization, type EmbeddedTilesetOptimizationStats } from '@/tmx/optimize'
 import { resolveTsx } from '@/game/builtin'
 import { createNewMap, type NewMapOptions } from '@/game/mapFactory'
 import { bytesToBase64 } from '@/tmx/base64'
@@ -216,6 +217,13 @@ export const useEditorStore = defineStore('editor', {
       const m = this.map
       if (!m) throw new Error('没有打开的地图')
       return serializeTmx(m)
+    },
+
+    async exportOptimizedTmxText(): Promise<{ text: string; stats: EmbeddedTilesetOptimizationStats }> {
+      const m = this.map
+      if (!m) throw new Error('没有打开的地图')
+      const result = await optimizeEmbeddedTilesetsForSerialization(m)
+      return { text: serializeTmx(result.map), stats: result.stats }
     },
 
     // ---------------- 历史 ----------------
@@ -701,7 +709,9 @@ export const useEditorStore = defineStore('editor', {
 
     /**
      * 在世界坐标处放置单位对象。
-     * 优先写入 UnitObjects 对象组；没有则写入 Triggers；都没有则新建 UnitObjects。
+     * 对照游戏源码 TiledMap.java 导出：对象组名为 UnitObjects；
+     * maps/a.java 加载时扫描所有 objectgroup，只要对象有 unit/customUnit + team 即生成单位。
+     * 绝不写入 Triggers（Triggers 专放触发器）。
      */
     placeUnitAt(worldX: number, worldY: number) {
       const m = this.map
@@ -709,7 +719,8 @@ export const useEditorStore = defineStore('editor', {
       if (!m || !preset) return
       let gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'unitobjects')
       if (gi < 0) {
-        gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'triggers')
+        // 兼容误命名为 Units 的旧图
+        gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'units')
       }
       if (gi < 0) {
         this.addObjectGroup('UnitObjects')
