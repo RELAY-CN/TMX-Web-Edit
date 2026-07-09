@@ -258,6 +258,8 @@ function drawTile(
 
 function drawObjects(ctx: CanvasRenderingContext2D, z: number) {
   const m = store.map!
+  // 编辑对象时才给矩形铺淡填充；平时只描边，避免 Triggers 大区域挡住地形
+  const editingObjects = tool.value === 'object' || tool.value === 'unit'
   for (let gi = 0; gi < m.layers.length; gi++) {
     const item = m.layers[gi]
     if (!isObjectGroup(item) || !item.visible) continue
@@ -278,14 +280,18 @@ function drawObjects(ctx: CanvasRenderingContext2D, z: number) {
 
       ctx.lineWidth = selected ? 2 : 1
       ctx.strokeStyle = col
-      ctx.fillStyle = col + '22'
       if (o.point || (!o.width && !o.height)) {
         ctx.beginPath()
         ctx.arc(sx, sy, selected ? 6 : 4, 0, Math.PI * 2)
+        ctx.fillStyle = col
         ctx.fill()
         ctx.stroke()
       } else {
-        ctx.fillRect(sx, sy, sw, sh)
+        // 仅选中或正在编辑对象时淡填；否则只描边，不遮挡地形
+        if (selected || (editingObjects && isActiveGroup)) {
+          ctx.fillStyle = selected ? col + '33' : col + '18'
+          ctx.fillRect(sx, sy, sw, sh)
+        }
         ctx.strokeRect(sx + 0.5, sy + 0.5, sw, sh)
         if (selected) {
           // 右下角缩放手柄
@@ -294,13 +300,14 @@ function drawObjects(ctx: CanvasRenderingContext2D, z: number) {
         }
       }
 
-      // 标签
-      if (z >= 0.35) {
+      // 标签：选中始终显示；未选中仅在放大且编辑对象时显示，减少遮挡
+      const showLabel = selected || (editingObjects && z >= 0.5) || (!editingObjects && z >= 0.8)
+      if (showLabel) {
         const label = o.name || o.type || '#' + o.id
         if (label) {
           ctx.font = '11px "Segoe UI", sans-serif'
           const tm = ctx.measureText(label)
-          ctx.fillStyle = 'rgba(0,0,0,0.62)'
+          ctx.fillStyle = selected ? 'rgba(0,0,0,0.72)' : 'rgba(0,0,0,0.45)'
           ctx.fillRect(sx, sy - 14, tm.width + 8, 13)
           ctx.fillStyle = selected ? '#ffffff' : col
           ctx.fillText(label, sx + 4, sy - 4)

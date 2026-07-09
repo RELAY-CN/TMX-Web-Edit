@@ -195,21 +195,19 @@ export const useEditorStore = defineStore('editor', {
     pickDefaultLayers() {
       const m = this.map
       if (!m) return
+      // 打开地图默认只激活 Ground 画地形；不预选 Triggers 对象组，
+      // 避免右侧面板/对象高亮把注意力拉到触发器层（触发器默认只描边，不铺满遮罩）。
       this.activeLayerIndex = -1
       this.activeObjectGroupIndex = -1
+      this.selectedObjectId = -1
+      this.tool = 'brush'
       m.layers.forEach((l, i) => {
         if (isTileLayer(l) && l.name.toLowerCase() === 'ground' && this.activeLayerIndex === -1) {
           this.activeLayerIndex = i
         }
-        if (isObjectGroup(l) && l.name.toLowerCase() === 'triggers' && this.activeObjectGroupIndex === -1) {
-          this.activeObjectGroupIndex = i
-        }
       })
       if (this.activeLayerIndex === -1) {
         this.activeLayerIndex = m.layers.findIndex((l) => isTileLayer(l))
-      }
-      if (this.activeObjectGroupIndex === -1) {
-        this.activeObjectGroupIndex = m.layers.findIndex((l) => isObjectGroup(l))
       }
       this.activeTilesetIndex = Math.max(0, m.tilesets.findIndex((t) => !t.missing))
     },

@@ -156,7 +156,17 @@ function onJumpTile(x: number, y: number) {
 
 watch(tool, (t) => {
   if (t === 'unit') rightTab.value = 'units'
-  else if (t === 'object') rightTab.value = 'objects'
+  else if (t === 'object') {
+    rightTab.value = 'objects'
+    // 切到对象工具时，若尚未选中对象组，自动选 Triggers（不在打开地图时预选，避免遮挡）
+    if (store.map && store.activeObjectGroupIndex < 0) {
+      const idx = store.map.layers.findIndex(
+        (l) => l.kind === 'objectgroup' && l.name.toLowerCase() === 'triggers',
+      )
+      store.activeObjectGroupIndex =
+        idx >= 0 ? idx : store.map.layers.findIndex((l) => l.kind === 'objectgroup')
+    }
+  }
 })
 
 onMounted(() => {
