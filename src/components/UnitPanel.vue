@@ -102,7 +102,7 @@ function isActive(name: string) {
       </button>
       <div v-if="!filtered.length" class="empty">无匹配单位</div>
     </div>
-    <p class="footer-hint">选中后在画布点击放置；写入 UnitObjects（游戏官方对象组名，无则自动创建）</p>
+    <p class="footer-hint">选中后在画布点击放置；对象默认写入 UnitObjects，游戏按 unit/customUnit + team 读取</p>
   </div>
 </template>
 

@@ -10,4 +10,18 @@ describe('引导式教程', () => {
       expect(step.checkpoint.trim()).not.toBe('')
     }
   })
+
+  it('面向新手的文本只描述游戏行为和编辑操作', () => {
+    const visibleText = TUTORIAL_STEPS.flatMap((step) => [
+      step.title,
+      step.goal,
+      step.action,
+      step.checkpoint,
+      ...step.details,
+      step.tip ?? '',
+    ]).join('\n')
+
+    expect(visibleText).not.toContain('源码')
+    expect(visibleText).not.toContain('旧图里的 Units')
+  })
 })

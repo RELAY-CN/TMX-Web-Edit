@@ -65,7 +65,7 @@ function commitRename() {
 
 function layerWarning(name: string, kind: 'tile' | 'object'): string {
   const lower = name.toLowerCase()
-  if (kind === 'tile' && lower === 'units') return '保存进游戏时 units 图层会被游戏转为单位'
+  if (kind === 'tile' && lower === 'units') return '带 unit/customUnit + team 的图块会生成单位；其他图块可能被忽略'
   return ''
 }
 </script>
@@ -134,7 +134,7 @@ function layerWarning(name: string, kind: 'tile' | 'object'): string {
           <div class="form-row">
             <label>名称</label>
             <input v-model="addName" placeholder="图层名称" @keydown.enter="doAdd" />
-            <span class="hint">游戏要求必须有 Ground 与 Items；触发器放 Triggers，单位放 UnitObjects</span>
+            <span class="hint">Ground 与 Items 为必需图块层；触发器用 Triggers，单位可用 Units 图块层或单位对象</span>
           </div>
           <div class="form-row">
             <label>常用名称</label>

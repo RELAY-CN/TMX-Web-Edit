@@ -715,8 +715,8 @@ export const useEditorStore = defineStore('editor', {
 
     /**
      * 在世界坐标处放置单位对象。
-     * 对照游戏源码 TiledMap.java 导出：对象组名为 UnitObjects；
-     * maps/a.java 加载时扫描所有 objectgroup，只要对象有 unit/customUnit + team 即生成单位。
+     * 游戏导出单位时使用 UnitObjects；加载时扫描所有对象组，
+     * 只要对象有 unit/customUnit + team 即生成单位。
      * 绝不写入 Triggers（Triggers 专放触发器）。
      */
     placeUnitAt(worldX: number, worldY: number) {
@@ -725,7 +725,7 @@ export const useEditorStore = defineStore('editor', {
       if (!m || !preset) return
       let gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'unitobjects')
       if (gi < 0) {
-        // 兼容误命名为 Units 的旧图
+        // 沿用已有的 Units 对象组，避免把同一张图的单位拆到两个对象组。
         gi = m.layers.findIndex((l) => isObjectGroup(l) && l.name.toLowerCase() === 'units')
       }
       if (gi < 0) {

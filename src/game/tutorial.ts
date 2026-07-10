@@ -14,7 +14,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     title: '建立可进游戏的地图骨架',
     goal: '先得到游戏能加载的基本 TMX 结构。',
     action: '点「新建」创建地图，或「打开」载入已有 .tmx。',
-    checkpoint: '右侧图层里能看到 Ground、Items、Triggers 和 UnitObjects。',
+    checkpoint: '右侧图层里能看到 Ground 与 Items，并且校验面板可以正常检查地图。',
     details: [
       '游戏硬性要求：Ground 与 Items 图块层必须存在。',
       'Ground 每一格都要有地块，不能留空。',
@@ -36,14 +36,15 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     id: 'units',
-    title: '摆放单位到 UnitObjects',
+    title: '用图块或对象摆放单位',
     goal: '让游戏加载地图时生成初始单位。',
-    action: '按 U 或打开「单位摆放」，选择单位和队伍后在画布点击。',
-    checkpoint: '对象组 UnitObjects 中出现带 team 与 unit/customUnit 属性的对象。',
+    action: '可以在 Units 图块层绘制带单位属性的图块；也可以按 U 选择单位和队伍后在画布点击。',
+    checkpoint: '单位图块或单位对象同时带有 team 与 unit/customUnit 属性。',
     details: [
-      '游戏会扫描对象组中的 unit/customUnit + team 来生成单位。',
-      '本编辑器默认写 UnitObjects；旧图里的 Units 仍可兼容读取。',
-      '不要把单位当普通图块画在 Ground 或 Items 上。',
+      '带 unit/customUnit 的图块会被转换成单位，常见做法是放在 Units 图块层。',
+      '对象组名称不是加载条件；对象只要带 unit/customUnit + team 就能生成单位。',
+      '单位工具默认把对象写入 UnitObjects，便于和触发器分开管理。',
+      '不要把单位图块画在 Ground 上，否则游戏可能把该地面格判为空。',
     ],
   },
   {
@@ -53,7 +54,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     action: '按 O 切到对象工具，在「对象」页添加 map_info、unitDetect、unitAdd、objective 等。',
     checkpoint: '触发器对象位于 Triggers 对象组，unitAdd 至少有 team 和 spawnUnits。',
     details: [
-      '触发器放到其他对象组时，游戏源码会告警并可能忽略。',
+      '触发器放到其他对象组时，游戏可能无法识别或执行对应逻辑。',
       'map_info 决定地图类型和胜利条件。',
       '任务图通常还需要 objective 或其他激活链路。',
     ],

@@ -6,6 +6,9 @@ import type { TmxMap, TmxTileset } from '@/tmx/types'
 import { isObjectGroup, isTileLayer, rawGid } from '@/tmx/types'
 import { MISSION_TRIGGER_TYPES } from '@/game/triggers'
 
+const JAVA_INT_MIN = -2147483648
+const JAVA_INT_MAX = 2147483647
+
 export type ValidationSeverity = 'error' | 'warn' | 'info'
 
 export interface ValidationIssue {
@@ -85,24 +88,32 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
       issues.push({
         id: `tileset-firstgid-order-${index}`,
         severity: 'error',
-        message: `地块集「${ts.name || ts.image || '#' + index}」的 firstgid=${ts.firstgid} 未严格递增；游戏会按 XML 顺序计算错误的 gid 范围`,
+        message: `地块集「${ts.name || ts.image || '#' + index}」的 firstgid=${ts.firstgid} 未严格递增；该顺序可能使游戏计算出错误的 GID 范围`,
       })
     }
     if (ts.margin) {
       issues.push({
         id: `tileset-margin-${index}`,
         severity: 'warn',
-        message: `地块集「${ts.name || ts.image || '#' + index}」设置了 margin=${ts.margin}；游戏源码只读取 spacing，可能与编辑器预览不一致`,
+        message: `地块集「${ts.name || ts.image || '#' + index}」设置了 margin=${ts.margin}；游戏可能按未包含 margin 的坐标读取图块，导致实际结果与预览不一致`,
       })
     }
   }
 
   for (const { l, index } of tileLayers) {
     if (!isTileLayer(l)) continue
+    let reportedUnitTileNoUnit = false
+    let reportedUnitTileNoTeam = false
+    let reportedUnitTileInvalidTeam = false
+    let reportedGroundUnitTile = false
+    let reportedUnitsLayerNonUnit = false
     for (let i = 0; i < l.data.length; i++) {
       const gid = rawGid(l.data[i])
       if (gid === 0) continue
-      if (!validTileGid(tileRanges, gid)) {
+      const range = tileRanges.find((r) => gid >= r.ts.firstgid && gid < r.nextFirstgid)
+      const localId = range ? gid - range.ts.firstgid : -1
+      const validGid = Boolean(range && (range.ts.tilecount <= 0 || localId < range.ts.tilecount))
+      if (!validGid) {
         issues.push({
           id: `invalid-tile-gid-${i % l.width}-${Math.floor(i / l.width)}`,
           severity: 'error',
@@ -113,20 +124,75 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
         })
         break
       }
+
+      const tileProperties = range?.ts.tileProperties[localId]
+      const hasUnitProperty = Boolean(
+        tileProperties && ('unit' in tileProperties || 'customUnit' in tileProperties),
+      )
+      if (hasUnitProperty && tileProperties) {
+        if (!reportedUnitTileNoUnit && !tileProperties.unit && !tileProperties.customUnit) {
+          issues.push({
+            id: `unit-tile-no-unit-${index}-${i % l.width}-${Math.floor(i / l.width)}`,
+            severity: 'error',
+            message: `图层「${l.name}」的单位图块缺少有效的 unit 或 customUnit；游戏可能无法创建该单位`,
+            layerIndex: index,
+            tileX: i % l.width,
+            tileY: Math.floor(i / l.width),
+          })
+          reportedUnitTileNoUnit = true
+        }
+        if (!reportedUnitTileNoTeam && !tileProperties.team) {
+          issues.push({
+            id: `unit-tile-no-team-${index}-${i % l.width}-${Math.floor(i / l.width)}`,
+            severity: 'error',
+            message: `图层「${l.name}」的单位图块缺少 team；游戏可能忽略该单位`,
+            layerIndex: index,
+            tileX: i % l.width,
+            tileY: Math.floor(i / l.width),
+          })
+          reportedUnitTileNoTeam = true
+        }
+        if (
+          !reportedUnitTileInvalidTeam &&
+          tileProperties.team &&
+          !validUnitTeam(tileProperties.team)
+        ) {
+          issues.push({
+            id: `unit-tile-invalid-team-${index}-${i % l.width}-${Math.floor(i / l.width)}`,
+            severity: 'error',
+            message: `图层「${l.name}」的单位图块 team=${tileProperties.team} 无效；应为 none 或整数，游戏可能无法加载该地图`,
+            layerIndex: index,
+            tileX: i % l.width,
+            tileY: Math.floor(i / l.width),
+          })
+          reportedUnitTileInvalidTeam = true
+        }
+        if (!reportedGroundUnitTile && l.name.toLowerCase() === 'ground') {
+          issues.push({
+            id: `ground-unit-tile-${index}-${i % l.width}-${Math.floor(i / l.width)}`,
+            severity: 'error',
+            message: `Ground 中的图块带有 unit/customUnit；游戏会把它转换成单位，并可能将该地面格判为空`,
+            layerIndex: index,
+            tileX: i % l.width,
+            tileY: Math.floor(i / l.width),
+          })
+          reportedGroundUnitTile = true
+        }
+      } else if (!reportedUnitsLayerNonUnit && l.name.toLowerCase() === 'units') {
+        issues.push({
+          id: `units-layer-non-unit-${index}-${i % l.width}-${Math.floor(i / l.width)}`,
+          severity: 'warn',
+          message: `Units 图层中的 gid=${gid} 没有 unit/customUnit 属性；游戏可能忽略该图块`,
+          layerIndex: index,
+          tileX: i % l.width,
+          tileY: Math.floor(i / l.width),
+        })
+        reportedUnitsLayerNonUnit = true
+      }
     }
   }
 
   const triggers = objectGroups.find((e) => e.l.name.toLowerCase() === 'triggers')
-  const unitObjects = objectGroups.find(
-    (e) => e.l.name.toLowerCase() === 'unitobjects' || e.l.name.toLowerCase() === 'units',
-  )
-  if (!unitObjects) {
-    issues.push({
-      id: 'missing-unitobjects',
-      severity: 'info',
-      message: '建议添加名为 UnitObjects 的对象组（游戏导出单位所用名称；摆单位会自动创建）',
-    })
-  }
   if (!triggers) {
     issues.push({
       id: 'missing-triggers',
@@ -172,7 +238,7 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
           issues.push({
             id: `trigger-wrong-layer-${o.id}`,
             severity: 'warn',
-            message: `触发器「${o.name || o.type || '#' + o.id}」不在 Triggers 层（游戏会告警）`,
+            message: `触发器「${o.name || o.type || '#' + o.id}」不在 Triggers 层；游戏可能无法执行对应触发逻辑`,
             layerIndex: og.index,
             objectId: o.id,
           })
@@ -216,7 +282,6 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
 
   for (const og of objectGroups) {
     if (!isObjectGroup(og.l)) continue
-    const isUnitGroup = og.l.name.toLowerCase() === 'unitobjects' || og.l.name.toLowerCase() === 'units'
     for (const o of og.l.objects) {
       if (o.gid !== undefined && !validTileGid(tileRanges, rawGid(o.gid))) {
         issues.push({
@@ -227,22 +292,33 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
           objectId: o.id,
         })
       }
-      const looksLikeUnit = isUnitGroup || o.type === 'unit' || Boolean(o.properties.unit || o.properties.customUnit)
-      if (!looksLikeUnit) continue
-      if (!o.properties.team) {
+      const hasUnitProperty = 'unit' in o.properties || 'customUnit' in o.properties
+      if (!hasUnitProperty && o.type.toLowerCase() !== 'unit') continue
+      if (!o.properties.unit && !o.properties.customUnit) {
         issues.push({
-          id: `unit-object-no-team-${o.id}`,
-          severity: 'error',
-          message: `单位对象「${o.name || '#' + o.id}」缺少 team`,
+          id: `unit-object-no-unit-${o.id}`,
+          severity: hasUnitProperty ? 'error' : 'warn',
+          message: hasUnitProperty
+            ? `单位对象「${o.name || '#' + o.id}」的 unit/customUnit 属性为空；游戏可能无法解析该单位`
+            : `对象「${o.name || '#' + o.id}」设置了 type=unit，但缺少 unit/customUnit；游戏可能忽略该对象`,
           layerIndex: og.index,
           objectId: o.id,
         })
       }
-      if (!o.properties.unit && !o.properties.customUnit) {
+      if (hasUnitProperty && !o.properties.team) {
         issues.push({
-          id: `unit-object-no-unit-${o.id}`,
+          id: `unit-object-no-team-${o.id}`,
           severity: 'error',
-          message: `单位对象「${o.name || '#' + o.id}」缺少 unit 或 customUnit`,
+          message: `单位对象「${o.name || '#' + o.id}」缺少 team；游戏可能无法加载该地图`,
+          layerIndex: og.index,
+          objectId: o.id,
+        })
+      }
+      if (hasUnitProperty && o.properties.team && !validUnitTeam(o.properties.team)) {
+        issues.push({
+          id: `unit-object-invalid-team-${o.id}`,
+          severity: 'error',
+          message: `单位对象「${o.name || '#' + o.id}」的 team=${o.properties.team} 无效；应为 none 或整数，游戏可能无法加载该地图`,
           layerIndex: og.index,
           objectId: o.id,
         })
@@ -290,4 +366,11 @@ function validTileGid(ranges: { ts: TmxTileset; nextFirstgid: number }[], gid: n
   const local = gid - range.ts.firstgid
   if (range.ts.tilecount <= 0) return true
   return local >= 0 && local < range.ts.tilecount
+}
+
+function validUnitTeam(team: string): boolean {
+  if (team.toLowerCase() === 'none') return true
+  if (!/^[+-]?\d+$/.test(team)) return false
+  const value = Number(team)
+  return Number.isInteger(value) && value >= JAVA_INT_MIN && value <= JAVA_INT_MAX
 }
