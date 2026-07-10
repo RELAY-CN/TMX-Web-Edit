@@ -14,6 +14,7 @@ import ValidationPanel from '@/components/ValidationPanel.vue'
 import TutorialGuide from '@/components/TutorialGuide.vue'
 import { validateMap } from '@/game/validation'
 import { saveDraft, loadDraft, clearDraft, hasDraft, type DraftMeta } from '@/utils/autosave'
+import { isEditorSaveSnapshotCurrent, type EditorSaveSnapshot } from '@/utils/saveState'
 
 const store = useEditorStore()
 const { tool, statusMessage, dirty, fileName, loading, showGrid, showObjects, highlightActiveLayer, showMinimap } =
@@ -24,6 +25,7 @@ const showSettings = ref(false)
 const showValidation = ref(false)
 const showTutorial = ref(false)
 const errorText = ref('')
+const saving = ref(false)
 const rightTab = ref<'objects' | 'units'>('objects')
 const canvasRef = ref<InstanceType<typeof MapCanvas> | null>(null)
 
@@ -44,8 +46,7 @@ const TOOLS: { id: ToolId; icon: string; label: string; key: string }[] = [
 const title = computed(() => (dirty.value ? '● ' : '') + fileName.value)
 
 const validation = computed(() => {
-  void store.structRev
-  void store.rev
+  void store.validationRev
   return validateMap(store.map)
 })
 const errorCount = computed(() => validation.value.filter((i) => i.severity === 'error').length)
@@ -75,24 +76,44 @@ async function openFile() {
 }
 
 async function saveFile() {
+  if (saving.value || !store.map) return
+  const snapshot: EditorSaveSnapshot = {
+    map: store.map,
+    fileName: store.fileName,
+    rev: store.rev,
+    structRev: store.structRev,
+  }
+  saving.value = true
   try {
     const { text, stats } = await store.exportOptimizedTmxText()
     const blob = new Blob([text], { type: 'application/xml' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = fileName.value.endsWith('.tmx') ? fileName.value : fileName.value + '.tmx'
+    a.download = snapshot.fileName.endsWith('.tmx') ? snapshot.fileName : snapshot.fileName + '.tmx'
     a.click()
     URL.revokeObjectURL(a.href)
-    store.dirty = false
-    clearDraft()
-    draftMeta.value = null
     const optimized =
       stats.compactedTilesets || stats.removedTilesets
         ? `；已优化自定义地块集 ${stats.compactedTilesets} 个，移除未使用 ${stats.removedTilesets} 个`
         : ''
-    store.setStatus('已导出 ' + a.download + '（内置地块仅引用，自定义地块已内嵌' + optimized + '）')
+    const current: EditorSaveSnapshot = {
+      map: store.map,
+      fileName: store.fileName,
+      rev: store.rev,
+      structRev: store.structRev,
+    }
+    if (isEditorSaveSnapshotCurrent(snapshot, current)) {
+      store.dirty = false
+      clearDraft()
+      draftMeta.value = null
+      store.setStatus('已导出 ' + a.download + '（内置地块仅引用，自定义地块已内嵌' + optimized + '）')
+    } else if (store.map === snapshot.map) {
+      store.setStatus('已导出 ' + a.download + '；保存期间有新修改，当前地图仍需再次保存')
+    }
   } catch (e) {
     errorText.value = String((e as Error).message ?? e)
+  } finally {
+    saving.value = false
   }
 }
 
@@ -208,7 +229,9 @@ onBeforeUnmount(() => {
       <div class="file-ops">
         <button @click="showNewMap = true">新建</button>
         <button @click="openFile">打开 (Ctrl+O)</button>
-        <button class="primary" :disabled="!store.map" @click="saveFile">保存 TMX (Ctrl+S)</button>
+        <button class="primary" :disabled="!store.map || saving" @click="saveFile">
+          {{ saving ? '正在保存…' : '保存 TMX (Ctrl+S)' }}
+        </button>
         <button :disabled="!store.map" @click="showSettings = true">地图设置</button>
         <button :disabled="!store.map" @click="showValidation = true" title="地图校验">
           校验

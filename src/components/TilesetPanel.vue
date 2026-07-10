@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { listBuiltinTsx } from '@/game/builtin'
 import { tileSourceRect } from '@/tmx/images'
-import { matchingLocalTileIds, tilesetMatchesQuery } from '@/tmx/tilesetSearch'
+import { matchingLocalTileIds, preferredTilesetIndex, tilesetMatchesQuery } from '@/tmx/tilesetSearch'
 
 const store = useEditorStore()
 const { structRev, activeTilesetIndex } = storeToRefs(store)
@@ -24,7 +24,8 @@ const tileQuery = ref('')
 
 const tilesets = computed(() => {
   void structRev.value
-  return store.map?.tilesets ?? []
+  // map 被 markRaw；结构变化时返回新数组，确保过滤列表收到更新。
+  return store.map ? [...store.map.tilesets] : []
 })
 const activeTs = computed(() => tilesets.value[activeTilesetIndex.value] ?? null)
 const filteredTilesets = computed(() => {
@@ -129,7 +130,11 @@ function redraw() {
 }
 
 watch([activeTs, structRev], () => nextTick(redraw), { immediate: true })
-watch(tileQuery, () => nextTick(redraw))
+watch([tileQuery, structRev], () => {
+  const preferred = preferredTilesetIndex(tilesets.value, tileQuery.value, activeTilesetIndex.value)
+  if (preferred !== null && preferred !== activeTilesetIndex.value) store.activeTilesetIndex = preferred
+  nextTick(redraw)
+})
 watch(sel, redraw, { deep: true })
 
 function tileAt(e: MouseEvent): { x: number; y: number } | null {
@@ -272,7 +277,8 @@ async function onAttachFile(e: Event) {
     </div>
 
     <div class="ts-body scroll" @mouseleave="onUp">
-      <div v-if="activeTs?.missing" class="missing-tip">
+      <div v-if="tileQuery && !filteredTilesets.length" class="no-match-body">未找到匹配的地块</div>
+      <div v-if="activeTs?.missing && (!tileQuery || filteredTilesets.length)" class="missing-tip">
         <p>图片缺失：{{ activeTs.image || activeTs.source || activeTs.name }}</p>
         <p class="hint">该地块集既不是游戏内置、也没有内嵌数据。补充 PNG 后将自动内嵌进 TMX。</p>
         <label class="attach-btn">
@@ -281,6 +287,7 @@ async function onAttachFile(e: Event) {
         </label>
       </div>
       <canvas
+        v-if="!tileQuery || filteredTilesets.length"
         ref="canvasEl"
         @mousedown.prevent="onDown"
         @mousemove="onHover"
@@ -386,6 +393,11 @@ async function onAttachFile(e: Event) {
   color: var(--text-dim);
   font-size: 12px;
   padding: 3px 2px;
+}
+.no-match-body {
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 12px 4px;
 }
 .tag {
   display: inline-block;

@@ -63,37 +63,76 @@ export function compactTilesetGeometry(usedCount: number): TilesetCompactionGeom
 }
 
 export function analyzeEmbeddedTilesetUsage(map: TmxMap): EmbeddedTilesetUsagePlan[] {
-  return map.tilesets.map((ts, tilesetIndex) => {
-    const nextFirstgid = nextTilesetFirstgid(map, tilesetIndex)
-    const used = new Set<number>()
-    let referencedGids = 0
-    const visit = (gid: number | undefined) => {
-      if (gid === undefined) return
-      const g = rawGid(gid)
-      if (g < ts.firstgid || g >= nextFirstgid) return
-      referencedGids++
-      const local = g - ts.firstgid
-      if (local >= 0 && local < ts.tilecount) used.add(local)
-    }
-    for (const layer of map.layers) {
-      if (isTileLayer(layer)) {
-        for (let i = 0; i < layer.data.length; i++) visit(layer.data[i])
-      } else if (isObjectGroup(layer)) {
-        for (const obj of layer.objects) visit(obj.gid)
-      }
-    }
-    const usedLocalIds = Array.from(used).sort((a, b) => a - b)
-    return {
+  type UsageAccumulator = { plan: EmbeddedTilesetUsagePlan; used: Set<number> }
+  const accumulators: UsageAccumulator[] = map.tilesets.map((ts, tilesetIndex) => ({
+    used: new Set<number>(),
+    plan: {
       tilesetIndex,
       firstgid: ts.firstgid,
-      nextFirstgid,
-      usedLocalIds,
-      referencedGids,
+      nextFirstgid: Number.POSITIVE_INFINITY,
+      usedLocalIds: [],
+      referencedGids: 0,
       tilecount: ts.tilecount,
       eligible: isEmbeddedCustomTileset(ts),
       hasBitmap: Boolean(ts.bitmap),
-      unusedTileCount: Math.max(0, ts.tilecount - usedLocalIds.length),
+      unusedTileCount: Math.max(0, ts.tilecount),
+    },
+  }))
+
+  // 相同 firstgid 共用一个边界组，每个 gid 只需二分定位一次。
+  const byFirstgid = new Map<number, UsageAccumulator[]>()
+  for (const accumulator of accumulators) {
+    const sameBoundary = byFirstgid.get(accumulator.plan.firstgid)
+    if (sameBoundary) sameBoundary.push(accumulator)
+    else byFirstgid.set(accumulator.plan.firstgid, [accumulator])
+  }
+  const ranges = Array.from(byFirstgid, ([firstgid, members]) => ({
+    firstgid,
+    nextFirstgid: Number.POSITIVE_INFINITY,
+    members,
+  })).sort((a, b) => a.firstgid - b.firstgid)
+  for (let i = 0; i < ranges.length; i++) {
+    ranges[i].nextFirstgid = ranges[i + 1]?.firstgid ?? Number.POSITIVE_INFINITY
+    for (const member of ranges[i].members) member.plan.nextFirstgid = ranges[i].nextFirstgid
+  }
+
+  const visit = (gid: number | undefined) => {
+    if (gid === undefined || ranges.length === 0) return
+    const g = rawGid(gid)
+    let low = 0
+    let high = ranges.length - 1
+    let rangeIndex = -1
+    while (low <= high) {
+      const middle = (low + high) >>> 1
+      if (ranges[middle].firstgid <= g) {
+        rangeIndex = middle
+        low = middle + 1
+      } else {
+        high = middle - 1
+      }
     }
+    if (rangeIndex < 0) return
+    const range = ranges[rangeIndex]
+    if (g >= range.nextFirstgid) return
+    for (const member of range.members) {
+      member.plan.referencedGids++
+      const local = g - member.plan.firstgid
+      if (local >= 0 && local < member.plan.tilecount) member.used.add(local)
+    }
+  }
+
+  for (const layer of map.layers) {
+    if (isTileLayer(layer)) {
+      for (let i = 0; i < layer.data.length; i++) visit(layer.data[i])
+    } else if (isObjectGroup(layer)) {
+      for (const obj of layer.objects) visit(obj.gid)
+    }
+  }
+
+  return accumulators.map(({ plan, used }) => {
+    plan.usedLocalIds = Array.from(used).sort((a, b) => a - b)
+    plan.unusedTileCount = Math.max(0, plan.tilecount - plan.usedLocalIds.length)
+    return plan
   })
 }
 
@@ -121,15 +160,16 @@ export async function optimizeEmbeddedTilesetsForSerialization(
     const oldEmbedded = sourceTs.properties.embedded_png ?? ''
     stats.beforeEmbeddedBytes += base64ByteLength(oldEmbedded)
 
-    if (!plan.hasBitmap) {
-      stats.skippedTilesets++
-      stats.afterEmbeddedBytes += base64ByteLength(oldEmbedded)
-      continue
-    }
-
     if (plan.referencedGids === 0) {
       removed.add(plan.tilesetIndex)
       stats.removedTilesets++
+      continue
+    }
+
+    // 删除零引用地块集不依赖图片解码；只有实际裁剪时才需要 bitmap。
+    if (!plan.hasBitmap) {
+      stats.skippedTilesets++
+      stats.afterEmbeddedBytes += base64ByteLength(oldEmbedded)
       continue
     }
 

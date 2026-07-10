@@ -15,8 +15,7 @@ const emit = defineEmits<{
 const store = useEditorStore()
 
 const issues = computed(() => {
-  void store.structRev
-  void store.rev
+  void store.validationRev
   return validateMap(store.map)
 })
 

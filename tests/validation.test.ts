@@ -46,7 +46,7 @@ describe('地图校验', () => {
 
   it('检出无效 gid、tileset margin 兼容风险、单位对象缺属性和可优化自定义图块', () => {
     const xml = `<?xml version="1.0"?>
-<map version="1.2" orientation="orthogonal" width="2" height="1" tilewidth="20" tileheight="20" nextobjectid="8">
+<map version="1.2" orientation="orthogonal" width="2" height="1" tilewidth="20" tileheight="20" nextobjectid="9">
  <tileset firstgid="1" source="terrain/Dirt.tsx"/>
  <tileset firstgid="100" name="custom" tilewidth="20" tileheight="20" margin="1" tilecount="4" columns="2">
   <properties><property name="embedded_png">iVBORw0KGgoAAAANSUhEUg==</property></properties>
@@ -66,6 +66,9 @@ describe('地图校验', () => {
  <objectgroup name="UnitObjects">
   <object id="7" name="bad unit" type="unit" x="0" y="0" width="20" height="20"/>
  </objectgroup>
+ <objectgroup name="Decorations">
+  <object id="8" name="bad tile object" gid="106" x="0" y="0" width="20" height="20"/>
+ </objectgroup>
 </map>`
     const map = parseTmx(xml, resolveTsx)
     const issues = validateMap(map)
@@ -74,6 +77,20 @@ describe('地图校验', () => {
     expect(issues.some((i) => i.id === 'tileset-margin-1')).toBe(true)
     expect(issues.some((i) => i.id === 'unit-object-no-team-7')).toBe(true)
     expect(issues.some((i) => i.id === 'unit-object-no-unit-7')).toBe(true)
+    expect(issues.some((i) => i.id === 'invalid-object-gid-8')).toBe(true)
     expect(issues.some((i) => i.id === 'custom-tileset-unused-1')).toBe(true)
+  })
+
+  it('检出未按 firstgid 严格递增排列的地块集', () => {
+    const xml = `<?xml version="1.0"?>
+<map version="1.2" orientation="orthogonal" width="1" height="1" tilewidth="20" tileheight="20" nextobjectid="1">
+ <tileset firstgid="100" source="terrain/Dirt.tsx"/>
+ <tileset firstgid="1" source="terrain/Long Grass.tsx"/>
+ <layer name="Ground" width="1" height="1"><data encoding="csv">1</data></layer>
+ <layer name="Items" width="1" height="1"><data encoding="csv">0</data></layer>
+</map>`
+    const issues = validateMap(parseTmx(xml, resolveTsx))
+
+    expect(issues.some((i) => i.id === 'tileset-firstgid-order-1')).toBe(true)
   })
 })

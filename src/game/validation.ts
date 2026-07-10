@@ -80,6 +80,14 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
   }))
 
   for (const { ts, index } of tileRanges) {
+    const previous = map.tilesets[index - 1]
+    if (previous && ts.firstgid <= previous.firstgid) {
+      issues.push({
+        id: `tileset-firstgid-order-${index}`,
+        severity: 'error',
+        message: `地块集「${ts.name || ts.image || '#' + index}」的 firstgid=${ts.firstgid} 未严格递增；游戏会按 XML 顺序计算错误的 gid 范围`,
+      })
+    }
     if (ts.margin) {
       issues.push({
         id: `tileset-margin-${index}`,
@@ -210,6 +218,15 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
     if (!isObjectGroup(og.l)) continue
     const isUnitGroup = og.l.name.toLowerCase() === 'unitobjects' || og.l.name.toLowerCase() === 'units'
     for (const o of og.l.objects) {
+      if (o.gid !== undefined && !validTileGid(tileRanges, rawGid(o.gid))) {
+        issues.push({
+          id: `invalid-object-gid-${o.id}`,
+          severity: 'error',
+          message: `对象「${o.name || '#' + o.id}」引用了不存在的 gid=${rawGid(o.gid)}`,
+          layerIndex: og.index,
+          objectId: o.id,
+        })
+      }
       const looksLikeUnit = isUnitGroup || o.type === 'unit' || Boolean(o.properties.unit || o.properties.customUnit)
       if (!looksLikeUnit) continue
       if (!o.properties.team) {
@@ -226,15 +243,6 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
           id: `unit-object-no-unit-${o.id}`,
           severity: 'error',
           message: `单位对象「${o.name || '#' + o.id}」缺少 unit 或 customUnit`,
-          layerIndex: og.index,
-          objectId: o.id,
-        })
-      }
-      if (o.gid !== undefined && !validTileGid(tileRanges, rawGid(o.gid))) {
-        issues.push({
-          id: `invalid-object-gid-${o.id}`,
-          severity: 'error',
-          message: `对象「${o.name || '#' + o.id}」引用了不存在的 gid=${rawGid(o.gid)}`,
           layerIndex: og.index,
           objectId: o.id,
         })

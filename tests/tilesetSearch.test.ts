@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { TmxTileset } from '@/tmx/types'
-import { matchingLocalTileIds, tilesetMatchesQuery } from '@/tmx/tilesetSearch'
+import { matchingLocalTileIds, preferredTilesetIndex, tilesetMatchesQuery } from '@/tmx/tilesetSearch'
 
 const ts: TmxTileset = {
   firstgid: 100,
@@ -36,5 +36,13 @@ describe('图块查找', () => {
     expect(matchingLocalTileIds(ts, 'gid:103')).toEqual([3])
     expect(matchingLocalTileIds(ts, 'builder')).toEqual([2])
     expect(matchingLocalTileIds(ts, 'missing')).toEqual([])
+  })
+
+  it('当前地块集不匹配时切到首个匹配结果', () => {
+    const other = { ...ts, firstgid: 1, name: 'Grass', image: 'grass.png', tileProperties: {} }
+
+    expect(preferredTilesetIndex([other, ts], 'gid:103', 0)).toBe(1)
+    expect(preferredTilesetIndex([other, ts], 'lava', 1)).toBe(1)
+    expect(preferredTilesetIndex([other, ts], 'water', 0)).toBeNull()
   })
 })

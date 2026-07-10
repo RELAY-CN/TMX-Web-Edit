@@ -59,6 +59,8 @@ export const useEditorStore = defineStore('editor', {
     rev: 0,
     /** 结构修订号（图层增删/地块集变化），面板监听 */
     structRev: 0,
+    /** 地图校验修订号；连续绘制在整笔提交后只递增一次 */
+    validationRev: 0,
     fileName: 'untitled.tmx',
     dirty: false,
 
@@ -137,9 +139,10 @@ export const useEditorStore = defineStore('editor', {
   },
 
   actions: {
-    bump() {
+    bump(validate = true) {
       this.rev++
       this.dirty = true
+      if (validate) this.validationRev++
     },
     bumpStruct() {
       this.structRev++
@@ -166,6 +169,7 @@ export const useEditorStore = defineStore('editor', {
         this.pickDefaultLayers()
         this.structRev++
         this.rev++
+        this.validationRev++
         this.setStatus(`已打开 ${fileName}（${map.width}x${map.height}）`)
       } finally {
         this.loading = false
@@ -187,6 +191,7 @@ export const useEditorStore = defineStore('editor', {
         this.pickDefaultLayers()
         this.structRev++
         this.rev++
+        this.validationRev++
         this.setStatus(`已新建地图 ${map.width}x${map.height}`)
       } finally {
         this.loading = false
@@ -263,7 +268,7 @@ export const useEditorStore = defineStore('editor', {
       if (before === (gid >>> 0)) return
       layer.data[idx] = gid >>> 0
       this.strokePatches.push({ layerIndex, idx, before, after: gid >>> 0 })
-      this.bump()
+      this.bump(false)
     },
 
     /** 在 (x,y) 应用图章（brush 工具） */
@@ -364,6 +369,7 @@ export const useEditorStore = defineStore('editor', {
           }
         },
       })
+      this.validationRev++
     },
 
     /** 取色：把某格的 gid 变成 1x1 图章 */

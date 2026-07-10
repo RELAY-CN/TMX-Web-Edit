@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { TmxMap, TmxTileset } from '@/tmx/types'
 import { FLIP_H } from '@/tmx/types'
 import {
+  analyzeEmbeddedTilesetUsage,
   optimizeEmbeddedTilesetsForSerialization,
   type CompactTilesetImageEncoder,
 } from '@/tmx/optimize'
@@ -110,6 +111,38 @@ function makeMap(): TmxMap {
 }
 
 describe('embedded tileset 优化', () => {
+  it('统计使用情况时每个图层 gid 只读取一次', () => {
+    const map = makeMap()
+    const ground = map.layers[0]
+    if (ground.kind !== 'tile') throw new Error('Ground should be tile layer')
+    let reads = 0
+    ground.data = new Proxy(ground.data, {
+      get(target, property) {
+        if (/^\d+$/.test(String(property))) reads++
+        return Reflect.get(target, property, target)
+      },
+    })
+
+    analyzeEmbeddedTilesetUsage(map)
+
+    expect(reads).toBe(ground.data.length)
+  })
+
+  it('无需位图也会移除完全未引用的自定义地块集', async () => {
+    const map = makeMap()
+    map.tilesets[2].bitmap = undefined
+
+    const result = await optimizeEmbeddedTilesetsForSerialization(map, async () => ({
+      embeddedPng: 'compact',
+      imagewidth: 40,
+      imageheight: 40,
+    }))
+
+    expect(result.map.tilesets.map((ts) => ts.name)).toEqual(['builtin', 'custom'])
+    expect(result.stats.removedTilesets).toBe(1)
+    expect(result.stats.skippedTilesets).toBe(0)
+  })
+
   it('导出副本只保留实际使用的自定义 tile 并重映射图层与对象 gid', async () => {
     const map = makeMap()
     const encoded: string[] = []

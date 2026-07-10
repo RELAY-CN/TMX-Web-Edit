@@ -15,6 +15,17 @@ export function tilesetMatchesQuery(ts: TmxTileset, query: string): boolean {
   return matchingLocalTileIds(ts, q).length > 0
 }
 
+export function preferredTilesetIndex(
+  tilesets: TmxTileset[],
+  query: string,
+  currentIndex: number,
+): number | null {
+  const current = tilesets[currentIndex]
+  if (current && tilesetMatchesQuery(current, query)) return currentIndex
+  const firstMatch = tilesets.findIndex((ts) => tilesetMatchesQuery(ts, query))
+  return firstMatch >= 0 ? firstMatch : null
+}
+
 export function matchingLocalTileIds(ts: TmxTileset, query: string): number[] {
   const q = normalizeTilesetQuery(query)
   if (!q) return []
