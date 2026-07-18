@@ -15,6 +15,8 @@ import {
 } from '@/game/triggers'
 import { BUILTIN_UNITS } from '@/game/units'
 import { isObjectGroup } from '@/tmx/types'
+import UnitPicker, { type PickedUnit } from '@/components/UnitPicker.vue'
+import { parseSpawnUnits, serializeSpawnUnits } from '@/game/spawnUnits'
 
 const store = useEditorStore()
 const { structRev, rev } = storeToRefs(store)
@@ -103,6 +105,35 @@ function addProp() {
   newPropValue.value = ''
 }
 
+/** spawnUnits 可视化单位列表（与属性文本双向同步） */
+const spawnUnitsPicked = computed<PickedUnit[]>({
+  get() {
+    const o = obj.value
+    if (!o) return []
+    return parseSpawnUnits(o.properties['spawnUnits']).map((e) => ({
+      unit: e.unit,
+      count: e.count,
+      opts: e.opts,
+    }))
+  },
+  set(list) {
+    setProp(
+      'spawnUnits',
+      serializeSpawnUnits(
+        list.map((u) => ({
+          unit: u.unit.trim(),
+          count: Math.max(1, u.count | 0),
+          opts: u.opts,
+        })),
+      ),
+    )
+  },
+})
+
+function onSpawnUnitsPick(list: PickedUnit[]) {
+  spawnUnitsPicked.value = list
+}
+
 /** point 对象名称列表（move.target 用） */
 const pointNames = computed(() => {
   void structRev.value
@@ -135,6 +166,15 @@ const triggerIds = computed(() => {
 })
 
 const TEAMS = ['', '-1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'none']
+
+/** unit 字段快速点选（常用陆军/空军子集，完整列表见 datalist） */
+const unitQuickList = computed(() =>
+  BUILTIN_UNITS.filter((u) =>
+    ['tank', 'heavyTank', 'builder', 'helicopter', 'hoverTank', 'artillery', 'commandCenter', 'turret'].includes(
+      u.name,
+    ),
+  ),
+)
 
 const showAllCommon = ref(false)
 function fieldVisible(f: FieldDef): boolean {
@@ -233,8 +273,24 @@ function fieldVisible(f: FieldDef): boolean {
               <span>{{ obj.properties[f.key] === 'true' ? 'true' : '未设置' }}</span>
             </label>
 
+            <div v-else-if="f.type === 'unitlist'" class="unitlist-field">
+              <UnitPicker
+                :model-value="spawnUnitsPicked"
+                mode="spawn"
+                @update:model-value="onSpawnUnitsPick"
+              />
+              <textarea
+                class="unitlist-raw"
+                :value="obj.properties[f.key] ?? ''"
+                :placeholder="f.placeholder"
+                rows="2"
+                @change="setProp(f.key, ($event.target as HTMLTextAreaElement).value)"
+              />
+              <span class="hint">上方点选单位；下方可直接改 spawnUnits 原文（name*count）</span>
+            </div>
+
             <textarea
-              v-else-if="f.type === 'text' || f.type === 'unitlist'"
+              v-else-if="f.type === 'text'"
               :value="obj.properties[f.key] ?? ''"
               :placeholder="f.placeholder"
               rows="2"
@@ -248,6 +304,18 @@ function fieldVisible(f: FieldDef): boolean {
                 :placeholder="f.placeholder ?? '单位名'"
                 @change="setProp(f.key, ($event.target as HTMLInputElement).value)"
               />
+              <div class="unit-quick">
+                <button
+                  v-for="u in unitQuickList"
+                  :key="u.name"
+                  type="button"
+                  class="unit-chip"
+                  :title="u.name"
+                  @click="setProp(f.key, u.name)"
+                >
+                  {{ u.label }}
+                </button>
+              </div>
             </template>
 
             <template v-else-if="f.type === 'pointid'">
@@ -315,6 +383,25 @@ function fieldVisible(f: FieldDef): boolean {
   flex-direction: column;
   min-height: 0;
   height: 100%;
+}
+.unitlist-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.unitlist-raw {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+}
+.unit-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.unit-chip {
+  font-size: 10px;
+  padding: 2px 6px;
 }
 .empty {
   color: var(--text-dim);
