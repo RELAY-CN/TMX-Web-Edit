@@ -5,6 +5,7 @@ import { analyzeEmbeddedTilesetUsage, isEmbeddedCustomTileset } from '@/tmx/opti
 import type { TmxMap, TmxTileset } from '@/tmx/types'
 import { isObjectGroup, isTileLayer, rawGid } from '@/tmx/types'
 import { MISSION_TRIGGER_TYPES } from '@/game/triggers'
+import { parseSurvivalWaves } from '@/game/survival'
 
 const JAVA_INT_MIN = -2147483648
 const JAVA_INT_MAX = 2147483647
@@ -227,6 +228,56 @@ export function validateMap(map: TmxMap | null): ValidationIssue[] {
           layerIndex: triggers.index,
           objectId: mapInfo.id,
         })
+      }
+
+      // survival 专用契约（MissionEngine.java / g.java）
+      if (t && t.toLowerCase() === 'survival') {
+        const wavesRaw = mapInfo.properties['survivalWaves']
+        const classic = (mapInfo.properties['survivalWavesClassic'] ?? '').toLowerCase() === 'true'
+        if (!wavesRaw && !classic) {
+          issues.push({
+            id: 'survival-no-waves',
+            severity: 'warn',
+            message:
+              'survival 地图未设置 survivalWaves，且未开启 survivalWavesClassic；将无自定义波次公告（仍可用 unitAdd 刷兵）',
+            layerIndex: triggers.index,
+            objectId: mapInfo.id,
+          })
+        }
+        if (wavesRaw) {
+          const waves = parseSurvivalWaves(wavesRaw)
+          waves.forEach((w, i) => {
+            if (w.error) {
+              issues.push({
+                id: `survival-wave-error-${i}`,
+                severity: 'error',
+                message: `survivalWaves 第 ${i + 1} 行: ${w.error}`,
+                layerIndex: triggers.index,
+                objectId: mapInfo.id,
+              })
+            }
+          })
+        }
+        const attackPts = triggers.l.objects.filter((o) => o.name.toLowerCase() === 'attack_point')
+        if (!attackPts.length) {
+          issues.push({
+            id: 'survival-no-attack-point',
+            severity: 'warn',
+            message: 'survival 地图建议放置 attack_point（AI 进攻目标点）',
+            layerIndex: triggers.index,
+          })
+        }
+        const survTeams = triggers.l.objects.filter(
+          (o) => o.type === 'team_info' && (o.properties['ai'] ?? '').toLowerCase() === 'survival',
+        )
+        if (!survTeams.length) {
+          issues.push({
+            id: 'survival-no-ai-team',
+            severity: 'warn',
+            message: 'survival 地图建议至少有一个 team_info 且 ai=survival',
+            layerIndex: triggers.index,
+          })
+        }
       }
     }
 

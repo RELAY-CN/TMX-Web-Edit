@@ -5,9 +5,11 @@
  *  - 必须有名为 Items 的图层
  *  - 建议有 Triggers 对象组 + map_info 对象
  *  - 建议有 UnitObjects 对象组（摆放单位；游戏导出亦用此名）
+ *  - survival：map_info.type + winCondition + survivalWaves；attack_point；team_info ai=survival
  */
-import type { TmxLayer, TmxMap, TmxObjectGroup, TmxTileset } from '@/tmx/types'
+import type { TmxLayer, TmxMap, TmxObject, TmxObjectGroup, TmxTileset } from '@/tmx/types'
 import { resolveTsx } from './builtin'
+import { defaultSurvivalWavesText } from './survival'
 
 export interface NewMapOptions {
   width: number
@@ -63,27 +65,86 @@ export function createNewMap(opts: NewMapOptions): TmxMap {
   const items = makeLayer('Items', width, height)
   map.layers.push(ground, items)
 
+  const mapType = opts.mapType ?? 'skirmish'
+  const isSurvival = mapType.toLowerCase() === 'survival'
+
+  const mapInfoProps: Record<string, string> = { type: mapType }
+  if (isSurvival) {
+    mapInfoProps.winCondition = 'none'
+    mapInfoProps.survivalWaves = defaultSurvivalWavesText()
+    mapInfoProps.fog = 'map'
+  } else if (mapType.toLowerCase() !== 'skirmish') {
+    mapInfoProps.winCondition = 'mainBuildings'
+  }
+
+  const objects: TmxObject[] = [
+    {
+      id: 1,
+      name: 'map_info',
+      type: '',
+      x: 20,
+      y: 20,
+      width: 60,
+      height: 40,
+      rotation: 0,
+      visible: true,
+      properties: mapInfoProps,
+      extraAttrs: {},
+    },
+  ]
+  let nextId = 2
+
+  if (isSurvival) {
+    const cx = Math.floor((width * 20) / 2 / 20) * 20
+    const cy = Math.floor((height * 20) / 2 / 20) * 20
+    objects.push({
+      id: nextId++,
+      name: 'attack_point',
+      type: '',
+      x: cx,
+      y: cy,
+      width: 20,
+      height: 20,
+      rotation: 0,
+      visible: true,
+      properties: {},
+      extraAttrs: {},
+    })
+    objects.push({
+      id: nextId++,
+      name: '',
+      type: 'team_info',
+      x: 40,
+      y: 40,
+      width: 20,
+      height: 20,
+      rotation: 0,
+      visible: true,
+      properties: { team: '1', ai: 'survival', credits: '0' },
+      extraAttrs: {},
+    })
+    objects.push({
+      id: nextId++,
+      name: '',
+      type: 'team_info',
+      x: 60,
+      y: 40,
+      width: 20,
+      height: 20,
+      rotation: 0,
+      visible: true,
+      properties: { team: '0', credits: '4000' },
+      extraAttrs: {},
+    })
+  }
+
   const triggers: TmxObjectGroup = {
     kind: 'objectgroup',
     name: 'Triggers',
     visible: true,
     opacity: 1,
     properties: {},
-    objects: [
-      {
-        id: 1,
-        name: 'map_info',
-        type: '',
-        x: 20,
-        y: 20,
-        width: 60,
-        height: 40,
-        rotation: 0,
-        visible: true,
-        properties: { type: opts.mapType ?? 'skirmish' },
-        extraAttrs: {},
-      },
-    ],
+    objects,
     extraAttrs: {},
   }
   const unitObjects: TmxObjectGroup = {
@@ -96,6 +157,6 @@ export function createNewMap(opts: NewMapOptions): TmxMap {
     extraAttrs: {},
   }
   map.layers.push(triggers, unitObjects)
-  map.nextobjectid = 2
+  map.nextobjectid = nextId
   return map
 }
