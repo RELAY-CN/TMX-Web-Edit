@@ -57,11 +57,22 @@ Triggers 组与 map_info 建议存在、unitAdd 缺 team/spawnUnits 等；点击
 
 ```bash
 npm install
-npm run dev        # 开发服务器
-npm run build      # 类型检查 + 生产构建
-npm test           # TMX 解析/序列化往返测试
+npm run dev          # 开发服务器（无防逆向，便于调试）
+npm run build        # 类型检查 + 生产构建 + JS 混淆
+npm run build:plain  # 仅 Vite 构建（不二次混淆，便于排查）
+npm test             # TMX 解析/序列化往返测试
 npm run sync-assets  # 从游戏资源目录重新生成内置地块清单（可选）
 ```
+
+### 生产防逆向（提高门槛，非绝对安全）
+
+`npm run build` 默认启用多层防护：
+
+1. **构建层**：关闭 sourcemap、terser 压缩/mangle、剥离 `console`/`debugger`、哈希化资源文件名  
+2. **混淆层**：`scripts/obfuscate-dist.mjs` 对 `dist/assets/*.js` 做 stringArray / 控制流 / selfDefending 等混淆  
+3. **运行时**：生产环境屏蔽右键与常见开发者工具快捷键，并做 DevTools 尺寸启发式打断  
+
+前端代码最终仍会下发到浏览器，无法做到“不可逆向”；部署时请勿把开发用 `.map` 或源码仓库一并公开。
 
 `public/tilesets/bitmaps/` 与 `src/game/builtin-tilesets.json` 由 `scripts/sync-game-assets.mjs`
 从游戏官方资源生成（默认读取 `../../tilesets`，也可传入自定义路径）。
