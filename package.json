@@ -6,12 +6,13 @@
   "description": "Rusted Warfare (铁锈战争) TMX 地图网页编辑器",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build && node scripts/obfuscate-dist.mjs",
-    "build:fast": "vite build && node scripts/obfuscate-dist.mjs",
+    "build": "vue-tsc --noEmit && vite build && node scripts/obfuscate-dist.mjs && node scripts/verify-dist.mjs",
+    "build:fast": "vite build && node scripts/obfuscate-dist.mjs && node scripts/verify-dist.mjs",
     "build:plain": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "obfuscate": "node scripts/obfuscate-dist.mjs",
+    "verify:dist": "node scripts/verify-dist.mjs",
     "sync-assets": "node scripts/sync-game-assets.mjs"
   },
   "dependencies": {

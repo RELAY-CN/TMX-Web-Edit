@@ -1,13 +1,14 @@
 /**
- * 生产环境轻量防逆向（前端只能提高门槛，无法绝对防住）。
- * - 屏蔽常见快捷键 / 右键菜单
- * - 定时检测 DevTools 尺寸差并打断调试
- * - 清空 console 输出
+ * 生产环境轻量防逆向（提高门槛，不能绝对防住）。
+ *
+ * 设计原则：
+ *  - 不阻塞首屏加载
+ *  - 不主动每秒执行 debugger（避免正常用户/嵌入 WebView 卡死）
+ *  - 仅屏蔽常见“顺手”逆向路径：右键、F12、Ctrl+U 等
+ *  - console 静默，降低信息泄露
  *
  * 仅应在 import.meta.env.PROD 下调用。
  */
-
-const DEVTOOLS_THRESHOLD = 160
 
 function stripConsole() {
   const noop = () => {}
@@ -49,7 +50,6 @@ function blockContextMenu() {
     (e) => {
       e.preventDefault()
       e.stopPropagation()
-      return false
     },
     true,
   )
@@ -61,13 +61,11 @@ function blockDevtoolsShortcuts() {
     (e) => {
       const key = e.key
       const code = e.code
-      // F12
       if (key === 'F12' || code === 'F12') {
         e.preventDefault()
         e.stopPropagation()
         return
       }
-      // Ctrl+Shift+I/J/C/U / Ctrl+U
       if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(key.toUpperCase())) {
         e.preventDefault()
         e.stopPropagation()
@@ -77,7 +75,6 @@ function blockDevtoolsShortcuts() {
         e.preventDefault()
         e.stopPropagation()
       }
-      // macOS meta+alt+i
       if (e.metaKey && e.altKey && key.toUpperCase() === 'I') {
         e.preventDefault()
         e.stopPropagation()
@@ -87,62 +84,33 @@ function blockDevtoolsShortcuts() {
   )
 }
 
-/** 尺寸差启发式检测 + debugger 打断（打开控制台时明显卡顿） */
-function startDevtoolsTrap() {
-  let armed = true
-  const hitDebugger = () => {
-    try {
-      // eslint-disable-next-line no-debugger
-      debugger
-    } catch {
-      /* ignore */
-    }
+/**
+ * 可选：仅当 URL 带 ?hardProtect=1 时启用 DevTools 尺寸启发式 debugger。
+ * 默认关闭，避免误伤普通用户与自动化测试。
+ */
+function maybeStartDevtoolsTrap() {
+  try {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get('hardProtect') !== '1') return
+  } catch {
+    return
   }
 
-  const tick = () => {
-    if (!armed) return
+  const THRESHOLD = 160
+  const loop = () => {
     const widthGap = Math.abs(window.outerWidth - window.innerWidth)
     const heightGap = Math.abs(window.outerHeight - window.innerHeight)
-    if (widthGap > DEVTOOLS_THRESHOLD || heightGap > DEVTOOLS_THRESHOLD) {
-      hitDebugger()
+    if (widthGap > THRESHOLD || heightGap > THRESHOLD) {
+      try {
+        // eslint-disable-next-line no-debugger
+        debugger
+      } catch {
+        /* ignore */
+      }
     }
-    // Function 构造检测（控制台/断点环境部分场景会变慢或异常）
-    try {
-      const t0 = performance.now()
-      // eslint-disable-next-line no-new-func
-      new Function('debugger')()
-      if (performance.now() - t0 > 100) hitDebugger()
-    } catch {
-      /* ignore */
-    }
-  }
-
-  // 使用不规则间隔，降低被一次性 hook 掉的概率
-  const loop = () => {
-    tick()
-    const delay = 800 + Math.floor(Math.random() * 900)
-    window.setTimeout(loop, delay)
+    window.setTimeout(loop, 1200 + Math.floor(Math.random() * 800))
   }
   loop()
-
-  document.addEventListener('visibilitychange', () => {
-    armed = !document.hidden
-  })
-}
-
-function disableSelectionShortcutNoise() {
-  // 禁止拖选源码区域无意义；编辑器内 input/textarea 仍需可选
-  document.addEventListener(
-    'selectstart',
-    (e) => {
-      const t = e.target as HTMLElement | null
-      if (!t) return
-      const tag = t.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || t.isContentEditable) return
-      // 允许画布/面板文字选择影响小，不强制禁止
-    },
-    true,
-  )
 }
 
 export function enableAntiReverse() {
@@ -150,6 +118,5 @@ export function enableAntiReverse() {
   stripConsole()
   blockContextMenu()
   blockDevtoolsShortcuts()
-  disableSelectionShortcutNoise()
-  startDevtoolsTrap()
+  maybeStartDevtoolsTrap()
 }

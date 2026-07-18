@@ -1,6 +1,10 @@
 /**
  * 生产 dist 二次混淆（仅处理 assets/*.js）。
- * 设置偏保守：避免 transformObjectKeys / renameGlobals 破坏 Vue 运行时。
+ *
+ * 明确禁用会挂死/破坏 ESM 的选项：
+ *  - selfDefending：格式化或某些环境下无限循环
+ *  - debugProtection：加载期 debugger 陷阱，Node/CI 与正常预览易挂死
+ *  - transformObjectKeys / renameGlobals：破坏 Vue 响应式与命名导出
  *
  * 用法：node scripts/obfuscate-dist.mjs [distDir]
  */
@@ -17,23 +21,27 @@ if (!fs.existsSync(assetsDir)) {
   process.exit(1)
 }
 
-// 强度与体积权衡：过高会导致 dist 膨胀数倍、首屏变慢
+/**
+ * 可读性降低 + 体积可控。
+ * 不做“打开页面就卡死调试器”的 runtime 陷阱（由 antiReverse 轻量处理）。
+ */
 const options = {
   compact: true,
   controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.2,
+  controlFlowFlatteningThreshold: 0.15,
   deadCodeInjection: false,
-  debugProtection: true,
-  debugProtectionInterval: 3000,
-  disableConsoleOutput: true,
+  // 以下两项在加载期会挂死或污染运行时，禁止开启：
+  // selfDefending / debugProtection / disableConsoleOutput
+  debugProtection: false,
+  disableConsoleOutput: false,
   identifierNamesGenerator: 'hexadecimal',
   log: false,
   numbersToExpressions: false,
   renameGlobals: false,
-  selfDefending: true,
+  selfDefending: false,
   simplify: true,
   splitStrings: true,
-  splitStringsChunkLength: 10,
+  splitStringsChunkLength: 12,
   stringArray: true,
   stringArrayCallsTransform: true,
   stringArrayEncoding: ['base64'],
@@ -43,11 +51,12 @@ const options = {
   stringArrayWrappersCount: 1,
   stringArrayWrappersChainedCalls: true,
   stringArrayWrappersType: 'variable',
-  stringArrayThreshold: 0.55,
+  stringArrayThreshold: 0.5,
   transformObjectKeys: false,
   unicodeEscapeSequence: false,
-  // 保留 ES module 结构（Vite 产物为 type=module）
   target: 'browser',
+  // 保留 export / import.meta（Vite ESM 产物必需）
+  reservedNames: ['^enableAntiReverse$'],
 }
 
 const files = fs
@@ -65,8 +74,16 @@ let totalOut = 0
 for (const file of files) {
   const code = fs.readFileSync(file, 'utf8')
   totalIn += code.length
+  // 快速健康检查：混淆前若是 ESM chunk 应含 export 或入口 import
   const result = JavaScriptObfuscator.obfuscate(code, options)
   const out = result.getObfuscatedCode()
+
+  // 混淆后若是原文件含 export，产物也必须仍含 export（否则动态 import 崩）
+  if (/\bexport\b/.test(code) && !/\bexport\b/.test(out)) {
+    console.error('[obfuscate] 失败：混淆后丢失 export →', path.basename(file))
+    process.exit(1)
+  }
+
   fs.writeFileSync(file, out, 'utf8')
   totalOut += out.length
   console.log(
@@ -74,7 +91,6 @@ for (const file of files) {
   )
 }
 
-// 清理可能残留的 source map 文件
 function removeMaps(dir) {
   for (const name of fs.readdirSync(dir)) {
     const p = path.join(dir, name)
@@ -88,7 +104,6 @@ function removeMaps(dir) {
 }
 removeMaps(distDir)
 
-// 去掉 index.html 里若有 sourceMappingURL 的痕迹（一般 vite 不会写）
 const indexHtml = path.join(distDir, 'index.html')
 if (fs.existsSync(indexHtml)) {
   let html = fs.readFileSync(indexHtml, 'utf8')

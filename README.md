@@ -66,11 +66,13 @@ npm run sync-assets  # 从游戏资源目录重新生成内置地块清单（可
 
 ### 生产防逆向（提高门槛，非绝对安全）
 
-`npm run build` 默认启用多层防护：
+`npm run build` 默认启用多层防护，并跑 `verify-dist` 冒烟：
 
 1. **构建层**：关闭 sourcemap、terser 压缩/mangle、剥离 `console`/`debugger`、哈希化资源文件名  
-2. **混淆层**：`scripts/obfuscate-dist.mjs` 对 `dist/assets/*.js` 做 stringArray / 控制流 / selfDefending 等混淆  
-3. **运行时**：生产环境屏蔽右键与常见开发者工具快捷键，并做 DevTools 尺寸启发式打断  
+2. **混淆层**：`scripts/obfuscate-dist.mjs` 对 `dist/assets/*.js` 做 stringArray / 轻量控制流混淆  
+   - **刻意关闭** `selfDefending` / `debugProtection`（会导致加载挂死或误伤正常用户）  
+3. **运行时**：生产环境屏蔽右键与常见开发者工具快捷键、静默 console  
+   - 强硬 DevTools trap 仅 `?hardProtect=1` 开启  
 
 前端代码最终仍会下发到浏览器，无法做到“不可逆向”；部署时请勿把开发用 `.map` 或源码仓库一并公开。
 
