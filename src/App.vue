@@ -12,7 +12,9 @@ import NewMapDialog from '@/components/NewMapDialog.vue'
 import MapSettingsDialog from '@/components/MapSettingsDialog.vue'
 import ValidationPanel from '@/components/ValidationPanel.vue'
 import TutorialGuide from '@/components/TutorialGuide.vue'
+import SurvivalTimeline from '@/components/SurvivalTimeline.vue'
 import { validateMap } from '@/game/validation'
+import { getSurvivalMapInfo } from '@/game/survival'
 import { saveDraft, loadDraft, clearDraft, hasDraft, type DraftMeta } from '@/utils/autosave'
 import { isEditorSaveSnapshotCurrent, type EditorSaveSnapshot } from '@/utils/saveState'
 
@@ -24,10 +26,92 @@ const showNewMap = ref(false)
 const showSettings = ref(false)
 const showValidation = ref(false)
 const showTutorial = ref(false)
+const showSurvival = ref(false)
 const errorText = ref('')
 const saving = ref(false)
 const rightTab = ref<'objects' | 'units'>('objects')
 const canvasRef = ref<InstanceType<typeof MapCanvas> | null>(null)
+const layoutRef = ref<HTMLElement | null>(null)
+
+/** 生存时间轴面板高度（px），可拖拽调整 */
+const SURVIVAL_H_KEY = 'tmx-web-edit:survival-dock-h'
+const SURVIVAL_H_MIN = 160
+const SURVIVAL_H_DEFAULT = 320
+const survivalDockH = ref(SURVIVAL_H_DEFAULT)
+const resizingSurvival = ref(false)
+
+function clampSurvivalH(h: number, layoutEl?: HTMLElement | null): number {
+  const layoutH = layoutEl?.clientHeight ?? window.innerHeight - 80
+  // 至少给地图区留 120px
+  const maxH = Math.max(SURVIVAL_H_MIN, layoutH - 120)
+  return Math.min(maxH, Math.max(SURVIVAL_H_MIN, Math.round(h)))
+}
+
+function loadSurvivalDockH() {
+  try {
+    const raw = localStorage.getItem(SURVIVAL_H_KEY)
+    if (raw) {
+      const n = Number(raw)
+      if (Number.isFinite(n)) survivalDockH.value = clampSurvivalH(n)
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+function persistSurvivalDockH() {
+  try {
+    localStorage.setItem(SURVIVAL_H_KEY, String(survivalDockH.value))
+  } catch {
+    /* ignore */
+  }
+}
+
+function onSurvivalResizeStart(e: PointerEvent) {
+  if (!showSurvival.value) return
+  e.preventDefault()
+  const layout = layoutRef.value
+  const startY = e.clientY
+  const startH = survivalDockH.value
+  resizingSurvival.value = true
+
+  const target = e.currentTarget as HTMLElement
+  target.setPointerCapture?.(e.pointerId)
+
+  const onMove = (ev: PointerEvent) => {
+    // 向上拖 = 增大底部面板
+    const next = startH + (startY - ev.clientY)
+    survivalDockH.value = clampSurvivalH(next, layout)
+  }
+  const onUp = () => {
+    resizingSurvival.value = false
+    persistSurvivalDockH()
+    window.removeEventListener('pointermove', onMove)
+    window.removeEventListener('pointerup', onUp)
+    window.removeEventListener('pointercancel', onUp)
+  }
+  window.addEventListener('pointermove', onMove)
+  window.addEventListener('pointerup', onUp)
+  window.addEventListener('pointercancel', onUp)
+}
+
+function onSurvivalResizeDblClick() {
+  survivalDockH.value = SURVIVAL_H_DEFAULT
+  persistSurvivalDockH()
+}
+
+const survivalInfo = computed(() => {
+  void store.structRev
+  void store.rev
+  return getSurvivalMapInfo(store.map)
+})
+
+const layoutStyle = computed(() => {
+  if (!showSurvival.value) return undefined
+  return {
+    gridTemplateRows: `1fr ${survivalDockH.value}px`,
+  } as Record<string, string>
+})
 
 const draftMeta = ref<DraftMeta | null>(null)
 const showDraftPrompt = ref(false)
@@ -118,6 +202,8 @@ async function saveFile() {
 }
 
 function onGlobalKey(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement)?.tagName
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target as HTMLElement)?.isContentEditable
   if (e.ctrlKey && e.code === 'KeyS') {
     e.preventDefault()
     if (store.map) saveFile()
@@ -125,6 +211,10 @@ function onGlobalKey(e: KeyboardEvent) {
   if (e.ctrlKey && e.code === 'KeyO') {
     e.preventDefault()
     openFile()
+  }
+  if (!typing && !e.ctrlKey && !e.altKey && e.code === 'KeyT' && store.map) {
+    e.preventDefault()
+    showSurvival.value = !showSurvival.value
   }
 }
 
@@ -181,6 +271,27 @@ function onJumpTile(x: number, y: number) {
   canvasRef.value?.jumpToTile(x, y)
 }
 
+function onJumpObject(p: { layerIndex: number; objectId: number; x?: number; y?: number }) {
+  store.activeObjectGroupIndex = p.layerIndex
+  store.selectedObjectId = p.objectId
+  store.tool = 'object'
+  if (p.x != null && p.y != null && store.map) {
+    const tw = store.map.tilewidth || 20
+    const th = store.map.tileheight || 20
+    canvasRef.value?.jumpToTile(Math.floor(p.x / tw), Math.floor(p.y / th))
+  }
+}
+
+function onFocusMapInfo() {
+  const info = getSurvivalMapInfo(store.map)
+  if (info.mapInfo && info.triggersIndex >= 0) {
+    store.activeObjectGroupIndex = info.triggersIndex
+    store.selectedObjectId = info.mapInfo.id
+    store.tool = 'object'
+    rightTab.value = 'objects'
+  }
+}
+
 watch(tool, (t) => {
   if (t === 'unit') rightTab.value = 'units'
   else if (t === 'object') {
@@ -197,6 +308,7 @@ watch(tool, (t) => {
 })
 
 onMounted(() => {
+  loadSurvivalDockH()
   window.addEventListener('keydown', onGlobalKey)
   window.addEventListener('beforeunload', (e) => {
     if (store.dirty) {
@@ -233,6 +345,15 @@ onBeforeUnmount(() => {
           {{ saving ? '正在保存…' : '保存 TMX (Ctrl+S)' }}
         </button>
         <button :disabled="!store.map" @click="showSettings = true">地图设置</button>
+        <button
+          :disabled="!store.map"
+          :class="{ active: showSurvival }"
+          title="生存波次 / 刷兵时间轴 (T)"
+          @click="showSurvival = !showSurvival"
+        >
+          生存时间轴
+          <span v-if="survivalInfo.isSurvival" class="badge ok">S</span>
+        </button>
         <button :disabled="!store.map" @click="showValidation = true" title="地图校验">
           校验
           <span v-if="errorCount" class="badge err">{{ errorCount }}</span>
@@ -272,7 +393,13 @@ onBeforeUnmount(() => {
       <div class="filename" :title="fileName">{{ title }}</div>
     </header>
 
-    <main class="layout" v-if="store.map">
+    <main
+      ref="layoutRef"
+      class="layout"
+      :class="{ 'with-survival': showSurvival, resizing: resizingSurvival }"
+      :style="layoutStyle"
+      v-if="store.map"
+    >
       <aside class="left">
         <TilesetPanel />
       </aside>
@@ -300,6 +427,22 @@ onBeforeUnmount(() => {
           <ObjectInspector />
         </div>
       </aside>
+      <section v-if="showSurvival" class="survival-dock">
+        <div
+          class="survival-resize"
+          title="拖拽调整高度 · 双击恢复默认"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="调整生存时间轴高度"
+          @pointerdown="onSurvivalResizeStart"
+          @dblclick="onSurvivalResizeDblClick"
+        >
+          <span class="grip" />
+        </div>
+        <div class="survival-body">
+          <SurvivalTimeline @jump-object="onJumpObject" @focus-map-info="onFocusMapInfo" />
+        </div>
+      </section>
     </main>
 
     <main v-else class="welcome">
@@ -310,6 +453,7 @@ onBeforeUnmount(() => {
           <li>打开 / 编辑 / 保存游戏可直接读取的 .tmx 地图</li>
           <li>地形绘制、图层管理、内置与自定义地块集</li>
           <li>完整触发器系统：unitDetect、unitAdd、mapText、objective 等</li>
+          <li>生存地图：波次 survivalWaves + 刷兵时间轴可视化，单位可点选</li>
           <li>官方地块自动按名称引用，自定义地块自动内嵌（embedded_png）</li>
           <li>小地图导航、单位摆放、复制粘贴、本地草稿自动保存</li>
         </ul>
@@ -446,7 +590,66 @@ onBeforeUnmount(() => {
   flex: 1;
   display: grid;
   grid-template-columns: 300px 1fr 320px;
+  grid-template-rows: 1fr;
   min-height: 0;
+}
+.layout.resizing {
+  user-select: none;
+  cursor: row-resize;
+}
+.layout.with-survival > .left {
+  grid-row: 1;
+}
+.layout.with-survival > .center {
+  grid-row: 1;
+}
+.layout.with-survival > .right {
+  grid-row: 1;
+}
+.layout.with-survival > .survival-dock {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+}
+.survival-resize {
+  flex: 0 0 8px;
+  height: 8px;
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  touch-action: none;
+  z-index: 5;
+}
+.survival-resize:hover,
+.layout.resizing .survival-resize {
+  background: color-mix(in srgb, var(--accent) 28%, var(--bg2));
+}
+.survival-resize .grip {
+  width: 42px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--text-dim);
+  opacity: 0.55;
+}
+.survival-resize:hover .grip,
+.layout.resizing .survival-resize .grip {
+  background: var(--accent);
+  opacity: 1;
+}
+.survival-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .left {
   border-right: 1px solid var(--border);
@@ -458,6 +661,10 @@ onBeforeUnmount(() => {
 .center {
   min-width: 0;
   min-height: 0;
+}
+.badge.ok {
+  background: #1e4a35;
+  color: #8dffc0;
 }
 .right {
   border-left: 1px solid var(--border);

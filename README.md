@@ -34,7 +34,14 @@
   `point`、`camera_start`、`camera_pan`、`attack_point`、`rotate`、`fall`、`set_team`、
   `ai_allow_full_use`、`disable_unit_ai`
 - 表单化编辑 + 任意自定义属性增删；对象在画布可视化叠加、拖拽移动/缩放
-- 内置单位名自动补全（52 个官方单位）
+- 内置单位名自动补全（52 个官方单位）；`spawnUnits` / 生存波次支持可视化点选单位
+
+### 生存模式（对照 MissionEngine / g.java）
+- 顶部「生存时间轴」(快捷键 T)：可视化编辑 `survivalWaves` 波次公告与 `unitAdd` 定时刷兵
+- 波次格式：`+M:SS 说明 [lockSpawn] - 3 tank, 2 heavyTank`；单位可从内置列表点选
+- 刷兵：`warmup` / `delay` / `repeatDelay` 落在时间轴上；`spawnUnits` 点选单位（`tank*3` 语法）
+- 新建 survival 图自动带 `winCondition`、`survivalWaves` 样例、`attack_point`、`team_info ai=survival`
+- 校验：坏波次行 / 缺进攻点 / 缺 survival AI 队伍
 
 ### 校验
 状态栏与「校验」面板实时提示游戏硬性要求：Ground / Items 图层必须存在、Ground 不能有空格、
@@ -70,5 +77,6 @@ npm run sync-assets  # 从游戏资源目录重新生成内置地块清单（可
 | Ctrl+Z / Ctrl+Y | 撤销 / 重做 |
 | Ctrl+C / Ctrl+V / Ctrl+D | 复制 / 粘贴 / 复制并粘贴对象 |
 | Ctrl+O / Ctrl+S | 打开 / 保存 |
+| T | 开关生存时间轴 |
 | Delete | 删除选中对象 |
 | 右键绘制 | 擦除 |
